@@ -1,0 +1,64 @@
+    @Override
+    public void exportServiceLogs(HttpServletResponse response,ServiceLogCondition serviceLogCondition) {
+        ServiceLogQuery serviceLogQuery = initServiceLogQuery(serviceLogCondition);
+        EsDocumentList esDocumentList = esService.getServiceLogs(serviceLogQuery);
+        ExcelWriter writer = ExcelUtil.getWriter();
+        ArrayList<Map<String, Object>> rows = CollUtil.newArrayList();
+        if(CollectionUtils.isEmpty(esDocumentList)) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put(ServiceLogCst.CREATE_DATETIME,"");
+            row.put(ServiceLogCst.SERVICE_CODE, "");
+            row.put(ServiceLogCst.LOG_LEVEL, "");
+            row.put(ServiceLogCst.SOURCE_NAME,"");
+            row.put(ServiceLogCst.CALLED_RESOURCE,"");
+            row.put(ServiceLogCst.DESCRIPTION,"");
+            rows.add(row);
+        }
+        int exportNum = 1;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
+        for (Map<String, Object> document : esDocumentList) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put(ServiceLogCst.CREATE_DATETIME, sdf.format(DateTimeUtils.addHour(new Date((Long) document.get(EsConst.OPERATION_DATE_TIME)), 8)));
+            row.put(ServiceLogCst.SERVICE_CODE, document.get(EsConst.SERVICE_CODE));
+            String logLevel = (String) document.get(EsConst.LOG_LEVEL);
+            if ("0".equals(logLevel)) row.put(ServiceLogCst.LOG_LEVEL, "信息");
+            if ("1".equals(logLevel)) row.put(ServiceLogCst.LOG_LEVEL, "警告");
+            if ("2".equals(logLevel)) row.put(ServiceLogCst.LOG_LEVEL, "错误");
+            row.put(ServiceLogCst.SOURCE_NAME, document.get(EsConst.SOURCE_NAME));
+            String calledSource = (String) document.get(EsConst.CALLED_SOURCE);
+            if(ZHENGHE.equals(calledSource)){
+                row.put(ServiceLogCst.CALLED_RESOURCE, "主机");
+            }else{
+                row.put(ServiceLogCst.CALLED_RESOURCE, calledSource);
+            }
+            row.put(ServiceLogCst.DESCRIPTION, document.get(EsConst.DESCRIPTION));
+            rows.add(row);
+            if(exportNum % ServiceLogCst.EXPORT_EXCEL_MAX == 0){
+                logger.log(LogCst.INQUIRER_DEV_INFO,"exportNum={}",exportNum);
+                writer.setSheet("sheet" + exportNum / ServiceLogCst.EXPORT_EXCEL_MAX);
+                writer.write(rows, true);
+                rows = CollUtil.newArrayList();
+            }
+            exportNum++;
+        }
+        writer.setSheet("sheet"+ (exportNum / ServiceLogCst.EXPORT_EXCEL_MAX+1));
+        writer.write(rows, true);
+        ServletOutputStream out = null;
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        String fileName = "serviceLog.xls";//下载时前端命名
+        try{
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+            response.setCharacterEncoding("utf-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
+            out = response.getOutputStream();
+            writer.getWorkbook().write(os);
+        } catch (IOException ex) {
+            logger.log(LogUtil.createLogUid(UPlusLevelCode.LOG_DEV_ERROR, logicalCode, LogCode.BYTE_STREAM_GENERATION_FAILED.getCode()),"{},{}", LogCode.BYTE_STREAM_GENERATION_FAILED.getDescription(),ex);
+        } finally {
+            assert out != null;
+            writer.flush(out, true);
+            writer.close();
+            IoUtil.close(out);
+        }
+    }
