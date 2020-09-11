@@ -1,0 +1,13 @@
+设置ES查询的最大返回数:
+PUT _all/_settings {
+  "index":{
+    "max_result_window":5000000
+   }
+}
+查看配置
+GET _search/
+{
+  "query": {
+    "match_all": {}
+  }
+}
