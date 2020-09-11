@@ -1,0 +1,844 @@
+
+package com.uih.uplus.solar.equipment.management.service.impl;
+
+import cn.hutool.http.HttpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.uih.uplus.auth.validator.utils.AuthTokenHolder;
+import com.uih.uplus.common.log.common.UPlusLevelCode;
+import com.uih.uplus.common.model.PageParam;
+import com.uih.uplus.common.model.Paging;
+import com.uih.uplus.common.service.impl.BaseServiceImpl;
+import com.uih.uplus.common.utils.date.DateUtil;
+import com.uih.uplus.solar.equipment.management.entity.Device;
+import com.uih.uplus.solar.equipment.management.mapper.DeviceMapper;
+import com.uih.uplus.solar.equipment.management.model.condition.*;
+import com.uih.uplus.solar.equipment.management.model.modify.DeviceModify;
+import com.uih.uplus.solar.equipment.management.model.view.*;
+import com.uih.uplus.solar.equipment.management.service.DeviceService;
+import com.uih.uplus.solar.shared.Model.AuthCustomerModel;
+import com.uih.uplus.solar.shared.Model.UserModel;
+import com.uih.uplus.solar.shared.constant.DeviceManageCst;
+import com.uih.uplus.solar.shared.constant.LogCst;
+import com.uih.uplus.solar.shared.enums.LogCode;
+import com.uih.uplus.solar.shared.utils.LogUtil;
+import com.uih.uplus.solar.shared.utils.PageUtils;
+import com.uih.uplus.solar.shared.utils.ServiceKeyUtils;
+import com.uih.uplus.solar.shared.utils.UserUtils;
+import lombok.extern.uih.log.UIHLog;
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.uih.uplus.solar.shared.utils.ServiceKeyUtils.*;
+
+/**
+ * <p>
+ * 设备基本表 服务实现类
+ * </p>
+ *
+ * @author ${author}
+ */
+@Service
+@UIHLog
+public class DeviceServiceImpl extends BaseServiceImpl<Device> implements DeviceService {
+    @Autowired
+    private DeviceMapper deviceMapper;
+
+    @Autowired
+    private CustomerUtils customerUtils;
+
+    @Autowired
+    private UserUtils userUtils;
+    @Autowired
+    private AuthTokenHolder tokenHolder;
+
+    @Value("${app.logical-code}")
+    private String logicalCode;
+
+    private static final String ENGINEER_NAME_STR = "engineerName";
+    private static final String ENGINEER_ID_STR = "engineerId";
+
+    @Override
+    public Device getBySnAndPnNumber(String serialNumber, String materialNumber) {
+        Map<String, String> queryMap = new HashMap<>();
+        queryMap.put("SERIAL_NUMBER", serialNumber);
+        queryMap.put("MATERIAL_NUMBER", materialNumber);
+        return getOne(new QueryWrapper<Device>().allEq(queryMap));
+    }
+
+    @Override
+    public Paging<DeviceModel> queryForPageList(String token, String userId,  PageParam pageParam, DeviceCondition queryParam) {
+        logger.log(LogCst.MANAGEMENT_DEV_INFO,"【装机列表-工程师】,userId={}",userId);
+        queryParam.setUserId(userId);
+        if (!StringUtils.isEmpty(pageParam.getAsc()) && pageParam.getAsc().equals(DeviceManageCst.CUSTOMER_NAME)) {
+            pageParam.setAsc(DeviceManageCst.CUSTOMER_ID);
+        }
+        if (!StringUtils.isEmpty(pageParam.getDesc()) && pageParam.getDesc().equals(DeviceManageCst.CUSTOMER_NAME)) {
+            pageParam.setDesc(DeviceManageCst.CUSTOMER_ID);
+        }
+        //从租户平台获取机构ID集合
+        boolean flag = org.apache.commons.lang3.StringUtils.isNotBlank(queryParam.getCountryName())
+                ||org.apache.commons.lang3.StringUtils.isNotBlank(queryParam.getProvinceName())
+                ||org.apache.commons.lang3.StringUtils.isNotBlank(queryParam.getCityName())
+                ||org.apache.commons.lang3.StringUtils.isNotBlank(queryParam.getAreaName());
+        if(flag){
+            List<Long> authCustomers = customerUtils.authQueryIdsByArea(token,queryParam.getCountryName(),queryParam.getProvinceName(),queryParam.getCityName(),queryParam.getAreaName());
+            if(CollectionUtils.isEmpty(authCustomers)){
+                return new Paging<>(new Page<>());
+            }
+            queryParam.setCustomerList(authCustomers);
+        }
+
+        Page<DeviceModel> page = PageUtils.getPage(pageParam, "d.MODIFY_DATETIME");
+        IPage<DeviceModel> uPage = deviceMapper.queryForPageList(page, queryParam);
+
+        //从租户平台获取机构名称
+        if(!CollectionUtils.isEmpty(uPage.getRecords())){
+            List<Long> customerIds = uPage.getRecords().stream().map(DeviceModel::getCustomerId).distinct().collect(Collectors.toList());
+            List<AuthCustomerModel> customerModels = customerUtils.authQueryByIds(customerIds);
+            for(DeviceModel deviceModel:uPage.getRecords()){
+                List<AuthCustomerModel> resultList = customerModels.stream().filter(a->a.getOrgId().equals(deviceModel.getCustomerId())).collect(Collectors.toList());
+                if(!CollectionUtils.isEmpty(resultList)){
+                    deviceModel.setCustomerName(resultList.get(0).getName());
+                }
+            }
+        }
+
+        return new Paging<>(uPage);
+    }
+
+    @Override
+    public Paging<DeviceModelView> queryForPageList(String token, String userId, PageParam pageParam, DeviceQueryCondition queryParam) {
+        logger.log(LogCst.MANAGEMENT_DEV_INFO,"【装机列表-客户】,userId={}",userId);
+        queryParam.setUserId(userId);
+        if (!StringUtils.isEmpty(pageParam.getAsc()) && pageParam.getAsc().equals(ENGINEER_NAME_STR)) {
+            pageParam.setAsc(ENGINEER_ID_STR);
+        }
+        if (!StringUtils.isEmpty(pageParam.getDesc()) && pageParam.getDesc().equals(ENGINEER_NAME_STR)) {
+            pageParam.setDesc(ENGINEER_ID_STR);
+        }
+        //从租户平台获取当前用户所在机构ID
+        List<AuthCustomerModel> customers = customerUtils.authQueryByUserId(token,Long.valueOf(userId));
+        if(!CollectionUtils.isEmpty(customers)){
+            queryParam.setCustomerId(customers.get(0).getOrgId());
+        }
+        Page<DeviceModelView> page = PageUtils.getPage(pageParam, "d.MODIFY_DATETIME");
+        IPage<DeviceModelView> uPage = deviceMapper.queryForPageOtherList(page, queryParam);
+        List<DeviceModelView> list = uPage.getRecords();
+        if (!CollectionUtils.isEmpty(list)) {
+            List<Long> ids = new ArrayList<>();
+            list.forEach(i -> ids.add(i.getEngineerId()));
+            List<UserModel> userModels = userUtils.getUserDataByIdList(ids);
+            for (int i = 0; i < list.size(); i++) {
+                if (userModels.get(i) != null) {
+                    list.get(i).setEngineerName(userModels.get(i).getName());
+                } else {
+                    logger.log(LogUtil.createLogUid(UPlusLevelCode.LOG_DEV_ERROR, logicalCode, LogCode.MULTI_TENANT_QUERY_FAILED.getCode()), "EngineerId为{}, 问题为：{}", list.get(i).getEngineerId(),LogCode.MULTI_TENANT_QUERY_FAILED.getDescription());
+                }
+            }
+        }
+        uPage.setRecords(list);
+        return new Paging<>(uPage);
+    }
+
+    /**
+     * 根据customerId查询关联的设备列表
+     *
+     * @param customerId
+     * @return
+     */
+    @Override
+    public List<KeyValueModel> queryRelateDevice(Long customerId) {
+        List<KeyValueModel> keyValues = new ArrayList<>();
+        List<DeviceModel> models = deviceMapper.queryRelateDevice(customerId);
+        //从租户平台获取机构名称
+        if (!CollectionUtils.isEmpty(models)) {
+            List<Long> customerIds = new ArrayList<>();
+            customerIds.add(customerId);
+            List<AuthCustomerModel> customerModels = customerUtils.authQueryByIds(customerIds);
+            for (DeviceModel deviceModel : models) {
+                if (!CollectionUtils.isEmpty(customerModels)) {
+                    deviceModel.setCustomerName(customerModels.get(0).getName());
+                }
+                KeyValueModel kv = new KeyValueModel(deviceModel.getId(), String.format("%s|%s|%s", deviceModel.getCustomerName(), deviceModel.getDeviceType(), deviceModel.getSerialNumber()));
+                keyValues.add(kv);
+            }
+        }
+        return keyValues;
+    }
+
+    /**
+     * 根据vpnId查询关联的设备列表
+     *
+     * @param vpnId
+     * @return
+     */
+    @Override
+    public List<RelateDevice> queryRelateDeviceList(Long vpnId) {
+        return deviceMapper.queryRelateDeviceList(vpnId);
+    }
+
+    /**
+     * 查询序列号+物料号是否重复
+     *
+     * @param serialNumber
+     * @param materialNumber
+     * @param deviceId
+     * @return
+     */
+    @Override
+    public boolean checkRepeatedSnAndPnNumber(String serialNumber, String materialNumber, Long deviceId) {
+        return this.count(new QueryWrapper<Device>().eq("SERIAL_NUMBER", serialNumber)
+                .eq("MATERIAL_NUMBER", materialNumber)
+                .ne(!StringUtils.isEmpty(deviceId), "ID", deviceId)) > 0;
+    }
+
+    @Override
+    public DeviceModify getById(Long id) {
+        DeviceModify entity = deviceMapper.getById(id);
+        if (entity != null && entity.getEngineerId() != null) {
+            UserModel userModel = userUtils.getUserById(entity.getEngineerId());
+            if (userModel != null) {
+                entity.setEngineerName(userModel.getName());
+            }
+        }
+        return entity;
+    }
+
+    @Override
+    public List<DeviceBrandDistributeModel> queryDeviceBrandDistribute(String token, String userId) {
+        List<String> productTypeBrandList = Arrays.asList(DeviceManageCst.productTypeBrandListForCustomer);
+        //从租户平台获取当前用户所在机构ID
+        List<AuthCustomerModel> customers = customerUtils.authQueryByUserId(token,Long.valueOf(userId));
+        List<DeviceBrandDistributeModel> deviceBrandDistributeModelList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(customers)){
+            deviceBrandDistributeModelList = deviceMapper.queryDeviceBrandDistribute(customers.get(0).getOrgId(), DeviceManageCst.productTypeListForCustomer);
+        }
+        List<String> list = deviceBrandDistributeModelList.stream().map(e -> e.getProductTypeName() + "," + e.getDeviceBrand()).collect(Collectors.toList());
+        for (String productTypeBrand : productTypeBrandList) {
+            if (!list.contains(productTypeBrand)) {
+                DeviceBrandDistributeModel item = new DeviceBrandDistributeModel();
+                item.setAmount(0);
+                item.setProductTypeName(productTypeBrand.split(",")[0]);
+                item.setDeviceBrand(productTypeBrand.split(",")[1]);
+                deviceBrandDistributeModelList.add(item);
+            }
+        }
+        deviceBrandDistributeModelList.forEach(p->{
+            if("MI".equals(p.getProductTypeName())) p.setProductTypeName("PET-CT");
+            if("PMR".equals(p.getProductTypeName())) p.setProductTypeName("PET-MR");
+            if("WS".equals(p.getProductTypeName())) p.setProductTypeName("AWS");
+        });
+        return deviceBrandDistributeModelList;
+    }
+
+    @Override
+    public List<DeviceBrandDistributeForEngineerModel> queryDeviceBrandDistributeForEngineer() {
+        List<String> productTypeDeviceTypeList = Arrays.asList(DeviceManageCst.productTypeDeviceTypeList);
+        List<DeviceBrandDistributeForEngineerModel> deviceBrandDistributeModelList = deviceMapper.queryDeviceBrandDistributeForEngineer(null, DeviceManageCst.productTypeList);
+        List<String> list = deviceBrandDistributeModelList.stream().map(e -> e.getProductTypeName() + "," + e.getDeviceType()).collect(Collectors.toList());
+        for (String productTypeDeviceType : productTypeDeviceTypeList) {
+            if (!list.contains(productTypeDeviceType)) {
+                DeviceBrandDistributeForEngineerModel item = new DeviceBrandDistributeForEngineerModel();
+                item.setAmount(0);
+                item.setProductTypeName(productTypeDeviceType.split(",")[0]);
+                item.setDeviceType(productTypeDeviceType.split(",")[1]);
+                deviceBrandDistributeModelList.add(item);
+            }
+        }
+        return deviceBrandDistributeModelList.stream()
+                .sorted(Comparator.comparing(DeviceBrandDistributeForEngineerModel::getProductTypeName)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DeviceTypeDistributeModel> queryDeviceTypeDistribute(String token, String userId) {
+        //从租户平台获取当前用户所在机构ID
+        List<AuthCustomerModel> customers = customerUtils.authQueryByUserId(token,Long.valueOf(userId));
+        if(!CollectionUtils.isEmpty(customers)){
+            List<Long> customerIds = new ArrayList<>();
+            for (AuthCustomerModel customer : customers) {
+                customerIds.add(customer.getOrgId());
+            }
+            List<DeviceTypeDistributeModel> DeviceTypeDistributeList = deviceMapper.queryDeviceTypeDistribute(customerIds, DeviceManageCst.productTypeListForCustomer);
+            DeviceTypeDistributeList.forEach(p->{
+                if("MI".equals(p.getProductTypeName())) p.setProductTypeName("PET-CT");
+                if("WS".equals(p.getProductTypeName())) p.setProductTypeName("AWS");
+                if("PMR".equals(p.getProductTypeName())) p.setProductTypeName("PET-MR");
+            });
+            return DeviceTypeDistributeList;
+        }
+        List<DeviceTypeDistributeModel> lists = new ArrayList<>();
+        for(String product:DeviceManageCst.productTypeListForCustomer){
+            if("MI".equals(product)) product = "PET-CT";
+            if("PMR".equals(product)) product = "PET-MR";
+            if("WS".equals(product)) product = "AWS";
+            lists.add(new DeviceTypeDistributeModel(product,0,0));
+        }
+        return lists;
+    }
+
+    @Override
+    public List<DeviceTypeDistributeModel> queryDeviceTypeDistributeForEngineer(String token, AreaCondition areaCondition) {
+        List<Long> authCustomers = null;
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(areaCondition.getCountryName()) || org.apache.commons.lang3.StringUtils.isNotBlank(areaCondition.getProvinceName())){
+            authCustomers = customerUtils.authQueryIdsByArea(token, areaCondition.getCountryName(),areaCondition.getProvinceName(),null,null);
+            if(CollectionUtils.isEmpty(authCustomers)) {
+                List<DeviceTypeDistributeModel> lists = new ArrayList<>();
+                for(String product:DeviceManageCst.productTypeList){
+                    lists.add(new DeviceTypeDistributeModel(product,0,0));
+                }
+                return lists;
+            }
+        }
+        return deviceMapper.queryDeviceTypeDistribute(authCustomers, DeviceManageCst.productTypeList);
+    }
+
+    @Override
+    public List<DeviceMRLogModel> queryDeviceList(String productName, Long customerId) {
+        return deviceMapper.queryDeviceList(productName, customerId);
+    }
+
+    @Override
+    public String getUserId() {
+        try {
+            if (tokenHolder.isValidate()) {
+                return tokenHolder.getToken().getUserId();
+            }
+        } catch (Exception ex) {
+            String logUid = LogUtil.createLogUid(UPlusLevelCode.LOG_DEV_ERROR, logicalCode,
+                    LogCode.TOKEN_OR_REDIS_ERROR.getCode());
+            logger.log(logUid, "{}:{}", LogCode.TOKEN_OR_REDIS_ERROR.getDescription(), ex);
+        }
+        return "";
+    }
+
+    /**
+     * 设备监控列表-服务工程师
+     *
+     * @param deviceMonitorCondition
+     * @param pageParam
+     * @return
+     */
+    @Override
+    public IPage<DeviceMonitorModel> queryDeviceMonitorListForPage(DeviceMonitorCondition deviceMonitorCondition, PageParam pageParam) {
+        logger.log(LogCst.MANAGEMENT_DEV_INFO,"【设备监控列表-服务工程师】,userId={}",getUserId());
+        deviceMonitorCondition.setUserId(getUserId());
+        if (!StringUtils.isEmpty(pageParam.getAsc()) && pageParam.getAsc().equals(ENGINEER_NAME_STR)) {
+            pageParam.setAsc(ENGINEER_ID_STR);
+        }
+        if (!StringUtils.isEmpty(pageParam.getDesc()) && pageParam.getDesc().equals(ENGINEER_NAME_STR)) {
+            pageParam.setDesc(ENGINEER_ID_STR);
+        }
+        if (!StringUtils.isEmpty(pageParam.getAsc()) && pageParam.getAsc().equals(DeviceManageCst.CUSTOMER_NAME)) {
+            pageParam.setAsc(DeviceManageCst.CUSTOMER_ID);
+        }
+        if (!StringUtils.isEmpty(pageParam.getDesc()) && pageParam.getDesc().equals(DeviceManageCst.CUSTOMER_NAME)) {
+            pageParam.setDesc(DeviceManageCst.CUSTOMER_ID);
+        }
+        Page<DeviceMonitorModel> page = PageUtils.getPage(pageParam, "b.MODIFY_DATETIME");
+        IPage<DeviceMonitorModel> deviceMonitorModelIPage = deviceMapper.queryDeviceMonitorList(page, deviceMonitorCondition);
+        if (!CollectionUtils.isEmpty(deviceMonitorModelIPage.getRecords())) {
+            List<Long> ids = new ArrayList<>();
+            deviceMonitorModelIPage.getRecords().forEach(i -> ids.add(i.getEngineerId()));
+            List<UserModel> userModels = userUtils.getUserDataByIdList(ids);
+            for (int i = 0; i < deviceMonitorModelIPage.getRecords().size(); i++) {
+                if (userModels.get(i) != null) {
+                    deviceMonitorModelIPage.getRecords().get(i).setEngineerName(userModels.get(i).getName());
+                } else {
+                    logger.log(LogUtil.createLogUid(UPlusLevelCode.LOG_DEV_ERROR, logicalCode, LogCode.MULTI_TENANT_QUERY_FAILED.getCode()), "EngineerId为{}, description {}", deviceMonitorModelIPage.getRecords().get(i).getEngineerId(),LogCode.MULTI_TENANT_QUERY_FAILED.getDescription());
+                }
+            }
+            //将客户名称更改为从租户平台获取
+            List<Long> customerIds = deviceMonitorModelIPage.getRecords().stream().map(DeviceMonitorModel::getCustomerId).distinct().collect(Collectors.toList());
+            List<AuthCustomerModel> customerModels = customerUtils.authQueryByIds(customerIds);
+            for (DeviceMonitorModel deviceMonitorModel:deviceMonitorModelIPage.getRecords()){
+                List<AuthCustomerModel> resultList = customerModels.stream().filter(a->a.getOrgId().equals(deviceMonitorModel.getCustomerId())).collect(Collectors.toList());
+                if(!CollectionUtils.isEmpty(resultList)){
+                    deviceMonitorModel.setCustomerName(resultList.get(0).getName());
+                }
+            }
+        }
+        return deviceMonitorModelIPage;
+    }
+
+    /**
+     * 设备监控列表-服务工程师
+     *
+     * @param deviceMonitorCondition
+     * @param pageParam
+     * @return
+     */
+    @Override
+    public IPage<DeviceMonitorModel> queryDeviceMonitorMobileListForPage(DeviceMonitorCondition deviceMonitorCondition, PageParam pageParam) {
+        logger.log(LogCst.MANAGEMENT_DEV_INFO,"【设备监控列表-服务工程师】,userId={}",getUserId());
+        deviceMonitorCondition.setUserId(getUserId());
+        if (!StringUtils.isEmpty(pageParam.getAsc()) && pageParam.getAsc().equals(ENGINEER_NAME_STR)) {
+            pageParam.setAsc(ENGINEER_ID_STR);
+        }
+        if (!StringUtils.isEmpty(pageParam.getDesc()) && pageParam.getDesc().equals(ENGINEER_NAME_STR)) {
+            pageParam.setDesc(ENGINEER_ID_STR);
+        }
+        if (!StringUtils.isEmpty(pageParam.getAsc()) && pageParam.getAsc().equals(DeviceManageCst.CUSTOMER_NAME)) {
+            pageParam.setAsc(DeviceManageCst.CUSTOMER_ID);
+        }
+        if (!StringUtils.isEmpty(pageParam.getDesc()) && pageParam.getDesc().equals(DeviceManageCst.CUSTOMER_NAME)) {
+            pageParam.setDesc(DeviceManageCst.CUSTOMER_ID);
+        }
+        Page<DeviceMonitorModel> page = PageUtils.getPage(pageParam, "b.MODIFY_DATETIME");
+        IPage<DeviceMonitorModel> deviceMonitorModelIPage = deviceMapper.queryDeviceMonitorList(page, deviceMonitorCondition);
+        if (!CollectionUtils.isEmpty(deviceMonitorModelIPage.getRecords())) {
+            List<Long> ids = new ArrayList<>();
+            deviceMonitorModelIPage.getRecords().forEach(i -> ids.add(i.getEngineerId()));
+            List<UserModel> userModels = userUtils.getUserDataByIdList(ids);
+            for (int i = 0; i < deviceMonitorModelIPage.getRecords().size(); i++) {
+                if (userModels.get(i) != null) {
+                    deviceMonitorModelIPage.getRecords().get(i).setEngineerName(userModels.get(i).getName());
+                } else {
+                    logger.log(LogUtil.createLogUid(UPlusLevelCode.LOG_DEV_ERROR, logicalCode, LogCode.MULTI_TENANT_QUERY_FAILED.getCode()), "EngineerId为{}, description {}", deviceMonitorModelIPage.getRecords().get(i).getEngineerId(),LogCode.MULTI_TENANT_QUERY_FAILED.getDescription());
+                }
+            }
+        }
+        return deviceMonitorModelIPage;
+    }
+
+    /**
+     * 设备监控列表-客户
+     *
+     * @param token
+     * @param userId
+     * @param deviceMonitorCondition
+     * @param pageParam
+     * @return
+     */
+    @Override
+    public IPage<DeviceMonitorView> queryDeviceMonitorListForPage(String token, String userId, DeviceMonitorQueryCondition deviceMonitorCondition, PageParam pageParam) {
+        logger.log(LogCst.MANAGEMENT_DEV_INFO,"【设备监控列表-客户】,userId={}",userId);
+        deviceMonitorCondition.setUserId(userId);
+        if (!StringUtils.isEmpty(pageParam.getAsc()) && pageParam.getAsc().equals(ENGINEER_NAME_STR)) {
+            pageParam.setAsc(ENGINEER_ID_STR);
+        }
+        if (!StringUtils.isEmpty(pageParam.getDesc()) && pageParam.getDesc().equals(ENGINEER_NAME_STR)) {
+            pageParam.setDesc(ENGINEER_ID_STR);
+        }
+        //从租户平台获取当前用户所在机构ID
+        List<AuthCustomerModel> customers = customerUtils.authQueryByUserId(token,Long.valueOf(userId));
+        if(!CollectionUtils.isEmpty(customers)){
+            deviceMonitorCondition.setCustomerId(customers.get(0).getOrgId());
+        }
+        Page<DeviceMonitorView> page = PageUtils.getPage(pageParam, "b.MODIFY_DATETIME");
+        IPage<DeviceMonitorView> deviceMonitorViewPage = deviceMapper.queryDeviceMonitorOtherList(page, deviceMonitorCondition);
+        List<Long> ids = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(deviceMonitorViewPage.getRecords())) {
+            deviceMonitorViewPage.getRecords().forEach(i -> ids.add(i.getEngineerId()));
+            List<UserModel> userModels = userUtils.getUserDataByIdList(ids);
+            for (int i = 0; i < deviceMonitorViewPage.getRecords().size(); i++) {
+                if (userModels.get(i) != null) {
+                    deviceMonitorViewPage.getRecords().get(i).setEngineerName(userModels.get(i).getName());
+                } else {
+                    logger.log(LogUtil.createLogUid(UPlusLevelCode.LOG_DEV_ERROR, logicalCode, LogCode.MULTI_TENANT_QUERY_FAILED.getCode()), "EngineerId为{}, 问题描述 {}", deviceMonitorViewPage.getRecords().get(i).getEngineerId(),LogCode.MULTI_TENANT_QUERY_FAILED.getDescription());
+               }
+            }
+        }
+        return deviceMonitorViewPage;
+    }
+
+    /**
+     * customer节点图信息查询
+     *
+     * @param token
+     * @param userId
+     * @param deviceMonitorCondition
+     * @return
+     */
+    @Override
+    public CustomerDeviceMonitorView queryDeviceMonitorList(String token, String userId, DeviceMonitorQueryCondition deviceMonitorCondition) {
+        //从租户平台获取当前用户所在机构ID
+        List<AuthCustomerModel> customers = customerUtils.authQueryByUserId(token,Long.valueOf(userId));
+        if(!CollectionUtils.isEmpty(customers)){
+            deviceMonitorCondition.setCustomerId(customers.get(0).getOrgId());
+        }
+        CustomerDeviceMonitorView customerDeviceMonitorView = new CustomerDeviceMonitorView();
+        List<DeviceMonitorView> deviceMonitorViews = deviceMapper.queryDeviceMonitorOtherList(deviceMonitorCondition);
+        for (DeviceMonitorView deviceMonitorView : deviceMonitorViews) {
+            if (StringUtils.isEmpty(deviceMonitorView.getDeviceConnectStatus())) {
+                deviceMonitorView.setDeviceConnectStatus(0);
+            }
+        }
+        deviceMonitorViews.sort(Comparator.comparing(DeviceMonitorView::getModifyDatetime).reversed());
+        customerDeviceMonitorView.setDeviceMonitorViews(deviceMonitorViews);
+
+        OverallDeviceMonitorInfo overallDeviceMonitorInfo = new OverallDeviceMonitorInfo();
+
+        //监控设备分布
+        Map<String, List<DeviceMonitorView>> collectProductType = deviceMonitorViews.stream().
+                collect(Collectors.groupingBy(DeviceMonitorView::getProductTypeName));
+        Map<String, Integer> productTypeMap = new HashMap<>();
+        for (Map.Entry<String, List<DeviceMonitorView>> entry : collectProductType.entrySet()) {
+            productTypeMap.put(entry.getKey(), entry.getValue().size());
+        }
+        overallDeviceMonitorInfo.setDeviceNum(productTypeMap);
+
+        //离线在线分布
+        Map<Integer, List<DeviceMonitorView>> collectConnectStatus = deviceMonitorViews.stream().
+                collect(Collectors.groupingBy(DeviceMonitorView::getDeviceConnectStatus));
+        if (collectConnectStatus.containsKey(0)) {
+            overallDeviceMonitorInfo.setOfflineDeviceNum(collectConnectStatus.get(0).size());
+        } else {
+            overallDeviceMonitorInfo.setOfflineDeviceNum(0);
+        }
+        if (collectConnectStatus.containsKey(1)) {
+            overallDeviceMonitorInfo.setOnlineDeviceNum(collectConnectStatus.get(1).size());
+        } else {
+            overallDeviceMonitorInfo.setOnlineDeviceNum(0);
+        }
+
+        //品牌分布
+        Map<String, List<DeviceMonitorView>> collectManufacturerName = deviceMonitorViews.stream().
+                collect(Collectors.groupingBy(DeviceMonitorView::getManufacturerName));
+        Map<String, Integer> manufacturerNameMap = new HashMap<>();
+        for (Map.Entry<String, List<DeviceMonitorView>> entry : collectManufacturerName.entrySet()) {
+            manufacturerNameMap.put(entry.getKey(), entry.getValue().size());
+        }
+        overallDeviceMonitorInfo.setManufacturerInfo(manufacturerNameMap);
+        customerDeviceMonitorView.setOverallDeviceMonitorInfo(overallDeviceMonitorInfo);
+
+        return customerDeviceMonitorView;
+    }
+
+    @Override
+    public List<DeviceMonitorModel> queryDeviceMonitorList(DeviceMonitorCondition deviceMonitorCondition) {
+        return deviceMapper.queryDeviceMonitorList(deviceMonitorCondition);
+    }
+
+    @Override
+    public List<KeyValueModel> queryDeviceListWithoutIp(Long customerId) {
+        List<KeyValueModel> keyValues = new ArrayList<>();
+        if (null == customerId) {
+            return keyValues;
+        }
+        List<DeviceModel> models = deviceMapper.queryDeviceListWithoutIp(customerId);
+        //从租户平台获取机构名称
+        for (DeviceModel deviceModel : models) {
+            keyValues.add(new KeyValueModel(deviceModel.getId(), String.format("%s|%s", deviceModel.getDeviceType(), deviceModel.getSerialNumber())));
+        }
+        return keyValues;
+    }
+
+    @Override
+    public DeviceMonitorEditModel getDeviceMonitorEditInfoById(Long deviceId) {
+        DeviceMonitorEditModel deviceMonitorEditInfo = deviceMapper.getDeviceMonitorEditInfoById(deviceId);
+        String operateList = "";
+        if (deviceMonitorEditInfo != null) {
+            operateList = deviceMonitorEditInfo.getOperateListStr();
+        }
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(operateList) && deviceMonitorEditInfo != null) {
+            deviceMonitorEditInfo.setOperateList(operateList.split(","));
+        }
+        //从租户平台获取机构名称
+        if(deviceMonitorEditInfo != null && deviceMonitorEditInfo.getCustomerId()!=null){
+            List<Long> ids = new ArrayList<>();
+            ids.add(deviceMonitorEditInfo.getCustomerId());
+            List<AuthCustomerModel> customerModels = customerUtils.authQueryByIds(ids);
+            if(!CollectionUtils.isEmpty(customerModels)){
+                deviceMonitorEditInfo.setDeviceInfoText(customerModels.get(0).getName()+deviceMonitorEditInfo.getDeviceInfoText());
+            }
+        }
+        return deviceMonitorEditInfo;
+    }
+
+    @Override
+    public SelectedDeviceMonitorInfo getSelectedDeviceMonitorInfo(Long deviceId) {
+        SelectedDeviceMonitorInfo selectedDeviceMonitorInfo = new SelectedDeviceMonitorInfo();
+        Device device = getOne(new QueryWrapper<Device>().eq("ID", deviceId));
+        if (device != null) {
+            UserModel userModel = userUtils.getUserById(device.getEngineerId());
+            selectedDeviceMonitorInfo.setEngineerId(device.getEngineerId());
+            if (userModel != null) {
+                selectedDeviceMonitorInfo.setEngineerName(userModel.getName());
+                selectedDeviceMonitorInfo.setCommunication(userModel.getPhoneNo());
+            }
+        }
+        return selectedDeviceMonitorInfo;
+    }
+
+    /**
+     * 校验日期顺序（  //发运日期<=安装开始日期<=安装结束日期<=保修生效日期<保修失效日期）
+     *
+     * @param deviceModify
+     * @return
+     */
+    @Override
+    public boolean checkDateOrder(DeviceModify deviceModify) {
+        boolean rel1 = deviceModify.getShippingDatetime().compareTo(deviceModify.getSetupStartDatetime()) <= 0;
+        boolean rel2 = deviceModify.getSetupStartDatetime().compareTo(deviceModify.getSetupEndDatetime()) <= 0;
+        boolean rel4 = deviceModify.getWarrantyEffectiveDatetime().compareTo(deviceModify.getWarrantyExpirationDatetime()) < 0;
+        return rel1 && rel2 && rel4;
+    }
+
+    @Override
+    public String getSystemId() {
+        String systemId = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()).substring(2);
+        while (this.count(new QueryWrapper<Device>().eq("SYSTEM_ID", systemId)) > 0) {
+            systemId = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()).substring(2);
+        }
+        return systemId;
+    }
+
+    /**
+     * @Description: 根据device id 查询出对应的ServiceKey信息
+     * @parameter: deviceId
+     * @return: ServiceKeyModel
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public ServiceKeyModel getServiceKeyInfo(Long deviceId) throws ParseException, NoSuchAlgorithmException {
+        return computeServiceKeyInfo(deviceId);
+    }
+
+    /**
+     * @Description: 计算并更新serviceKey
+     * @parameter: deviceId
+     * @return: ServiceKeyModel
+     */
+    private ServiceKeyModel computeServiceKeyInfo(Long deviceId) throws ParseException, NoSuchAlgorithmException {
+        ServiceKeyModel serviceKeyModel = deviceMapper.getServiceKeyInfo(deviceId);
+        //从租户平台获取机构名称
+        if(serviceKeyModel.getCustomerId()!=null){
+            List<Long> customerIds = new ArrayList<>();
+            customerIds.add(serviceKeyModel.getCustomerId());
+            List<AuthCustomerModel> customerModels = customerUtils.authQueryByIds(customerIds);
+            if(!CollectionUtils.isEmpty(customerModels)){
+                serviceKeyModel.setCustomerName(customerModels.get(0).getName());
+            }
+        }
+
+        Device device = getOne(new QueryWrapper<Device>().eq("ID", deviceId));
+        String serviceKeyL1 = device.getServiceKeyL1();
+        String serviceKeyL2 = device.getServiceKeyL2();
+        String serviceKeyL3 = device.getServiceKeyL3();
+        String dongleId = device.getDongleId();
+        if (!StringUtils.isEmpty(dongleId) && Pattern.matches("[0-9][-][0-9]{7}", dongleId)) {
+            if (StringUtils.isEmpty(serviceKeyL1)) {
+                Date warrantyExpirationDateL1 = new Date(2099 - 1900, Calendar.DECEMBER, 31);
+                String serviceKey1 = GenerateServiceKey(dongleId, warrantyExpirationDateL1, 1);
+                serviceKeyModel.setServiceKeyL1(serviceKey1);
+                device.setServiceKeyL1(serviceKey1);
+                log.debug("serviceKey1 = " + serviceKey1);
+            }
+            if (StringUtils.isEmpty(serviceKeyL2) || StringUtils.isEmpty(serviceKeyL3)) {
+                ServiceKeyUtils.ServiceKeyParameter serviceKeyParameter = new ServiceKeyUtils.ServiceKeyParameter();
+                isShowDbExpirationDate(device, serviceKeyParameter);
+                serviceKeyParameter.actualExpiration = LogonUserTimeToUtc(serviceKeyParameter.actualExpiration);
+                if (StringUtils.isEmpty(serviceKeyL2) && serviceKeyParameter.actualExpiration != null) {
+                    serviceKeyModel.setServiceKeyL2(serviceKeyParameter.serviceKeyL2);
+                    device.setServiceKeyL2(serviceKeyParameter.serviceKeyL2);
+                    serviceKeyModel.setL2KeyExpirationDatetime(serviceKeyParameter.actualExpiration);
+                    device.setL2KeyExpirationDatetime(serviceKeyParameter.actualExpiration);
+                }
+                if (StringUtils.isEmpty(serviceKeyL3) && serviceKeyParameter.actualExpiration != null) {
+                    device.setServiceKeyL3(serviceKeyParameter.serviceKeyL3);
+                    device.setL3KeyExpirationDatetime(serviceKeyParameter.actualExpiration);
+                }
+                this.updateServiceKeyInfo(device);
+            }
+        }
+        return serviceKeyModel;
+    }
+
+    private void isShowDbExpirationDate(Device device, ServiceKeyUtils.ServiceKeyParameter serviceKeyParameter) throws ParseException, NoSuchAlgorithmException {
+        Date deviceWarrantyExpiration = device.getWarrantyExpirationDatetime();
+        Date curExpirationDate = device.getL2KeyExpirationDatetime();
+        Date deviceWarrantyExpirationLocal = GetLogonUserTime(deviceWarrantyExpiration);
+        Date curExpirationDateLocal = GetLogonUserTime(curExpirationDate);
+        serviceKeyParameter.actualExpiration = null;
+        serviceKeyParameter.serviceKeyL2 = null;
+        serviceKeyParameter.serviceKeyL3 = null;
+
+        if (deviceWarrantyExpiration != null) {//设备保修期有值
+            if (curExpirationDateLocal != null) {//有效期日期不为空
+                if (!isExpired(curExpirationDateLocal)) {//有效期内
+                    serviceKeyParameter.serviceKeyL2 = device.getServiceKeyL2();
+                    serviceKeyParameter.serviceKeyL3 = device.getServiceKeyL3();
+                    serviceKeyParameter.actualExpiration = curExpirationDateLocal;
+                } else {//有效期外
+                    if (isExpired(deviceWarrantyExpirationLocal)) {
+                        add14Days(device.getDongleId(), serviceKeyParameter);
+                    }
+                }
+            } else {//有效期日期为空
+                if (isExpired(deviceWarrantyExpiration)) {//设备在保修期外
+                    add14Days(device.getDongleId(), serviceKeyParameter);
+                }
+            }
+        } else {//设备保修期无值
+            if (curExpirationDate != null) {//过期日期有值
+                if (!isExpired(curExpirationDate)) {
+                    serviceKeyParameter.serviceKeyL2 = device.getServiceKeyL2();
+                    serviceKeyParameter.serviceKeyL3 = device.getServiceKeyL3();
+                    serviceKeyParameter.actualExpiration = curExpirationDateLocal;
+                } else {
+                    add14Days(device.getDongleId(), serviceKeyParameter);
+                }
+            } else {//过期日期无值
+                add14Days(device.getDongleId(), serviceKeyParameter);
+            }
+        }
+    }
+
+    /**
+     * @Description: 是否过期
+     * @parameter: date
+     * @return: boolean
+     */
+    private boolean isExpired(Date date) {
+        return GetLogonUserTime(new Date()).compareTo(date) > 0;
+    }
+
+    /**
+     * @Description: 增加14天有效期，并生成L2/L3 serviceKey
+     * @parameter: dongleId 加密狗
+     * @parameter: serviceKeyParameter 计算结果
+     */
+    private void add14Days(String dongleId, ServiceKeyUtils.ServiceKeyParameter serviceKeyParameter) throws ParseException, NoSuchAlgorithmException {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(GetLogonUserTime(new Date()));
+        calendar.add(Calendar.DAY_OF_MONTH, 14);
+        serviceKeyParameter.actualExpiration = DateUtil.getDayBeginTime(calendar.getTime());
+        serviceKeyParameter.serviceKeyL2 = GenerateServiceKey(dongleId, serviceKeyParameter.actualExpiration, 2);
+        serviceKeyParameter.serviceKeyL3 = GenerateServiceKey(dongleId, serviceKeyParameter.actualExpiration, 3);
+    }
+
+    /**
+     * @Description: 根据device id 查询出设备相关信息（剖视图页面）
+     * @parameter: deviceId
+     * @return: DeviceInfoForSectionView
+     */
+    @Override
+    public DeviceInfoForSectionView getDeviceInfoForSectionView(long deviceId) {
+        DeviceInfoForSectionView deviceInfoForSectionView = deviceMapper.getDeviceInfoForSectionView(deviceId);
+        if (deviceInfoForSectionView != null) {
+            UserModel user = userUtils.getUserById(deviceInfoForSectionView.getEngineerId());
+            if (user != null) {
+                deviceInfoForSectionView.setEngineerName(user.getName());
+            }
+        }
+        return deviceInfoForSectionView;
+    }
+
+    /**
+     * @Description: 根据设备systemid获取发送告警设备信息
+     * @parameter: systemId
+     * @return: com.uih.uplus.solar.equipment.management.model.view.DeviceInfoForSendMessage
+     */
+    @Override
+    public DeviceInfoForSendMessage getDeviceInfoForSendMessage(String systemId) {
+        return deviceMapper.getDeviceInfoForSendMessage(systemId);
+    }
+
+    @Override
+    public boolean isDeviceExist(List<Long> relateDeviceIds) {
+        if (relateDeviceIds != null && !relateDeviceIds.isEmpty()) {
+            return this.count(new QueryWrapper<Device>().in("ID", relateDeviceIds).eq("DELETED", 0)) == relateDeviceIds.size();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean updateServiceKeyInfo(Device device) {
+        return deviceMapper.updateServiceKeyInfo(device) > 0;
+    }
+
+    /**
+     * @MethodName: checkSystemId
+     * @Description: 校验systemId是否重复
+     * @Param: [systemId]
+     * @Return: boolean
+     * @Author: haolang.yan
+     * @Date: 2020/5/9
+     **/
+    @Override
+    public boolean checkSystemId(String systemId, Long deviceId) {
+        return this.count(
+                new LambdaQueryWrapper<Device>()
+                        .eq(Device::getSystemId, systemId)
+                        .ne(!StringUtils.isEmpty(deviceId), Device::getId, deviceId)
+        ) > 0;
+    }
+
+    @Override
+    public String checkHttps(String deviceIp) {
+        String httpUrlString = "http://" + deviceIp + ":8001/?IsRemoteLogin=Y";
+        String httpsUrlString = "https://" + deviceIp + "/?IsRemoteLogin=Y";
+        if(testURLConnection(httpsUrlString)) {
+            return httpsUrlString;
+        }
+        if(testURLConnection(httpUrlString)) return httpUrlString;
+        return "";
+    }
+
+    private boolean testURLConnection(String urlString){
+        try {
+            HttpUtil.get(urlString,2500);
+            logger.log(LogCst.MANAGEMENT_DEV_INFO,"访问连接 {} 可用！",urlString);
+            return true;
+        } catch (Exception e1) {
+            logger.log(LogCst.MANAGEMENT_DEV_INFO,"访问连接 {} 不可用！",urlString);
+            return false;
+        }
+    }
+
+    @Override
+    public String getResourceImage(String deviceType) throws IOException {
+        if(!StringUtils.isEmpty(deviceType)) deviceType = deviceType.replace(" ","-");
+        String imagePath = "/static/image/" + deviceType   + ".png";
+        InputStream inputStream = this.getClass().getResourceAsStream(imagePath);
+        if(inputStream == null){
+            inputStream = this.getClass().getResourceAsStream(getImagePath(deviceType));
+        }
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] b = new byte[1024];
+        int len = -1;
+        while((len = inputStream.read(b)) != -1) {
+            bos.write(b, 0, len);
+        }
+        byte[] fileByte = bos.toByteArray();
+        Base64.encodeBase64String(fileByte);
+        return "data:image/png;base64,"+  Base64.encodeBase64String(fileByte);
+    }
+
+    private String getImagePath(String deviceType){
+        String imagePath = "/static/image/uCT.png";
+        String[] deviceTypes = new String[]{"uCT", "uMI", "uDR", "uMR", "uRT","uEXPLORER","uMammo","uPMR","uMC"};
+        for (String type : deviceTypes) {
+            if (deviceType.contains(type)) {
+                if (deviceType.contains("PC")) {
+                    imagePath = "/static/image/PC-" + type + ".png";
+                } else {
+                    imagePath = "/static/image/" + type + ".png";
+                }
+                break;
+            }
+        }
+        return imagePath;
+    }
+
+}
+
