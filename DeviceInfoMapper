@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uih.uplus.solar.equipment.management.mapper.DeviceInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="resultMap" type="com.uih.uplus.solar.equipment.management.entity.DeviceInfo">
+        <id column="ID" property="id"/>
+        <result column="DEVICE_ID" property="deviceId"/>
+        <result column="IP_ADDRESS" property="ipAddress"/>
+        <result column="LOG_UPLOAD_DATETIME" property="logUploadDatetime"/>
+        <result column="CONNECT_STATUS" property="connectStatus"/>
+        <result column="CONNECT_UPDATE_DATETIME" property="connectUpdateDatetime"/>
+        <result column="IACU_IP_ADDRESS" property="iacuIpAddress"/>
+        <result column="IACU_CONNECT_STATUS" property="iacuConnectStatus"/>
+        <result column="OPERATE_LIST" property="operateList"/>
+        <result column="IACU_CONNECT_UPDATE_DATETIME" property="iacuConnectUpdateDatetime"/>
+        <result column="DELETED" property="deleted"/>
+        <result column="CREATE_USER_ID" property="createUserId"/>
+        <result column="CREATE_DATETIME" property="createDatetime"/>
+        <result column="MODIFY_USER_ID" property="modifyUserId"/>
+        <result column="MODIFY_DATETIME" property="modifyDatetime"/>
+        <result column="VERSION" property="version"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="column_list">
+        ID, DEVICE_ID, IP_ADDRESS, LOG_UPLOAD_DATETIME, CONNECT_STATUS, CONNECT_UPDATE_DATETIME, IACU_IP_ADDRESS,
+        IACU_CONNECT_STATUS, OPERATE_LIST, IACU_CONNECT_UPDATE_DATETIME, DELETED, CREATE_USER_ID, CREATE_DATETIME,
+        MODIFY_USER_ID, MODIFY_DATETIME, VERSION
+    </sql>
+    <select id="getOnlineDeviceNum" resultType="java.lang.Integer">
+        select count(*)
+        from device_info di
+        LEFT JOIN device d ON d.ID = di.DEVICE_ID
+        where di.DELETED=0 AND d.DELETED=0 AND di.CONNECT_STATUS=1 AND di.IP_ADDRESS != ''
+        <if test="customerIds!=null and customerIds.size()>0">
+            AND d.CUSTOMER_ID in
+            <foreach item="item" index="index" collection="customerIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="getOfflineDeviceNum" resultType="java.lang.Integer">
+        select count(*)
+        from device_info di
+        LEFT JOIN device d ON d.ID = di.DEVICE_ID
+        where di.DELETED=0 AND d.DELETED=0 AND (di.CONNECT_STATUS=0 OR di.CONNECT_STATUS IS NULL) AND di.IP_ADDRESS != ''
+        <if test="customerIds != null and customerIds.size()>0">
+            AND d.CUSTOMER_ID in
+            <foreach item="item" index="index" collection="customerIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="queryOnlineDeviceNum" resultType="com.uih.uplus.solar.equipment.management.entity.DevicePeriodStatus">
+        SELECT
+        count(1) AS ONLINE_COUNT,
+        pt.`NAME` AS PRODUCT_TYPE,
+        d.CUSTOMER_ID
+        FROM
+        device_info di
+        LEFT JOIN device d ON d.ID = di.DEVICE_ID
+        LEFT JOIN device_type dt ON dt.ID = d.TYPE_ID
+        LEFT JOIN product_type pt ON pt.ID = dt.PRODUCT_TYPE_ID
+        WHERE
+        di.DELETED=0 AND d.DELETED=0 AND di.CONNECT_STATUS=1 AND di.IP_ADDRESS != ''
+        GROUP BY
+        pt.`NAME`,d.CUSTOMER_ID
+    </select>
+    <select id="queryOfflineDeviceNum" resultType="com.uih.uplus.solar.equipment.management.entity.DevicePeriodStatus">
+        SELECT
+        count(1) AS OFFLINE_COUNT,
+        pt.`NAME` AS PRODUCT_TYPE,
+        d.CUSTOMER_ID
+        FROM
+        device_info di
+        LEFT JOIN device d ON d.ID = di.DEVICE_ID
+        LEFT JOIN device_type dt ON dt.ID = d.TYPE_ID
+        LEFT JOIN product_type pt ON pt.ID = dt.PRODUCT_TYPE_ID
+        WHERE
+        di.DELETED=0 AND d.DELETED=0 AND (di.CONNECT_STATUS=0 OR di.CONNECT_STATUS IS NULL) AND di.IP_ADDRESS !=
+        ''
+        GROUP BY
+        pt.`NAME`,d.CUSTOMER_ID
+    </select>
+    <update id="updateByDeviceId" parameterType="com.uih.uplus.solar.equipment.management.entity.DeviceInfo">
+        update device_info
+        set CONNECT_STATUS=#{connectStatus},
+        CONNECT_UPDATE_DATETIME = #{connectUpdateDatetime}
+        where device_id=#{deviceId}
+    </update>
+
+    <select id="checkRepeatedIp" resultType="java.lang.Integer">
+        SELECT
+        count(t.ip)
+        FROM
+        (
+        SELECT di.IP_ADDRESS ip FROM device_info di WHERE di.IP_ADDRESS = #{inputIp} and di.DELETED=0
+        <if test="deviceId!=null and deviceId!=''">
+            and di.DEVICE_ID!=#{deviceId}
+        </if>
+        UNION SELECT di.IP_ADDRESS ip FROM device_info di WHERE di.IACU_IP_ADDRESS = #{inputIp} and di.DELETED=0
+        <if test="deviceId!=null and deviceId!=''">
+            and di.DEVICE_ID!=#{deviceId}
+        </if>
+        UNION SELECT v.IP_ADDRESS ip FROM vpn v WHERE v.IP_ADDRESS = #{inputIp} and v.DELETED=0
+        <if test="vpnId!=null and vpnId!=''">
+            and v.ID!=#{vpnId}
+        </if>
+        ) as t
+    </select>
+    <select id="getMonitorDeviceNum" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        device_info di
+        LEFT JOIN device d ON d.id = di.DEVICE_ID
+        WHERE
+        di.DELETED = 0 and d.DELETED = 0
+        AND di.IP_ADDRESS IS NOT NULL
+        AND di.IP_ADDRESS != ''
+        <if test="customerIds!=null and customerIds.size()>0">
+            AND d.CUSTOMER_ID in
+            <foreach item="item" index="index" collection="customerIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="getSystemType" resultType="java.lang.String">
+        SELECT
+        dt.DESCRIPTION
+        FROM device_type dt
+        LEFT JOIN device d ON dt.ID = d.TYPE_ID
+        WHERE dt.DELETED=0
+        <if test="deviceId != null">
+            AND d.ID = #{deviceId}
+        </if>
+    </select>
+    <select id="getDeviceIncrease" resultType="com.uih.uplus.solar.equipment.management.model.view.DeviceIncreaseModel">
+        SELECT
+            pt.`NAME` AS 'PRODUCT_TYPE',
+            COUNT(*)  AS 'AMOUNT'
+        FROM device d
+        LEFT JOIN device_info di ON di.DEVICE_ID = d.ID
+        LEFT JOIN device_type dt ON dt.ID = d.TYPE_ID AND dt.DELETED = 0
+        LEFT JOIN product_type pt ON pt.ID = dt.PRODUCT_TYPE_ID AND pt.DELETED = 0
+        WHERE d.DELETED = 0 AND di.DELETED = 0
+        AND di.IP_ADDRESS IS NOT NULL
+        AND di.IP_ADDRESS != ''
+        <if test="startDate != null" >
+            AND d.CREATE_DATETIME &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND d.CREATE_DATETIME &lt;= #{endDate}
+        </if>
+        GROUP BY pt.ID
+    </select>
+    <select id="queryDeviceOnLineByProductTypeId" resultType="java.lang.Integer">
+        SELECT  count(1)
+        FROM device d
+            LEFT JOIN device_info di ON d.ID = di.DEVICE_ID AND di.DELETED = 0
+            LEFT JOIN device_type dt ON dt.ID = d.TYPE_ID
+            LEFT JOIN product_type pt ON pt.ID = dt.PRODUCT_TYPE_ID
+        WHERE d.DELETED = 0 AND di.DELETED = 0
+        AND di.IP_ADDRESS IS NOT NULL AND di.IP_ADDRESS != '' AND di.CONNECT_STATUS=1
+        <if test="customerIds!=null and customerIds.size()>0">
+            AND d.CUSTOMER_ID in
+            <foreach item="item" index="index" collection="customerIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="productType != null and productType !=''">
+            AND  pt.`Name` = #{productType}
+        </if>
+    </select>
+    <select id="queryDeviceSumByProductTypeId" resultType="java.lang.Integer">
+        SELECT  count(1)
+        FROM device d
+        LEFT JOIN device_info di ON d.ID = di.DEVICE_ID AND di.DELETED = 0
+        LEFT JOIN device_type dt ON dt.ID = d.TYPE_ID
+        LEFT JOIN product_type pt ON pt.ID = dt.PRODUCT_TYPE_ID
+        WHERE d.DELETED = 0 AND di.DELETED = 0
+        AND di.IP_ADDRESS IS NOT NULL AND di.IP_ADDRESS != ''
+        <if test="customerIds!=null and customerIds.size()>0">
+            AND d.CUSTOMER_ID in
+            <foreach item="item" index="index" collection="customerIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="productType != null and productType !=''">
+            AND  pt.`Name` = #{productType}
+        </if>
+    </select>
+</mapper>
