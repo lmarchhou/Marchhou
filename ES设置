@@ -11,3 +11,6 @@ GET _search/
     "match_all": {}
   }
 }
+
+
+elasticsearch7.x教程必看教你如何快速入门，精心归纳 https://my.oschina.net/u/4403110/blog/4565352
