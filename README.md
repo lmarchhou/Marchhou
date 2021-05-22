@@ -1,24 +1,13 @@
 
-----
-## 目录
-1. [目录1](#jump1)
-2. [目录2](#jump2)
-
----
-### <span id="jump1">1. 目录1</span>
----
-### <span id="jump2">2. 目录2</span>
-
-
 
 **我的分类:**
  
-JAVA |Mysql|Elasticsearch|
-:---:|:---:|:-----------:|
-[java](#java)|💾|🎨|💡| 
+JAVA |Mysql|Elasticsearch
+:---:|:---:|:-----------:
+[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)
 
 
-## ☕Java相关
+## <span id="java">☕Java相关</span>
 ### 1.Java 8 Features
 * Lambda表达式
 * 接口的默认方法与静态方法
@@ -30,14 +19,9 @@ JAVA |Mysql|Elasticsearch|
 * JavaScript引擎Nashorn
 * Base64
 
-## 💾Mysql
+## <span id="mysql">💾Mysql</span>
 
-## 🎨ElasticSearch
-
-
+## <span id="elasticSearch">🎨ElasticSearch</span>
 
 
-
-
-### <span id="java">java</span>
 
