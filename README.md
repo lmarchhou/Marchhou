@@ -2,7 +2,7 @@
 
 **我的分类:**
  
-JAVA |Mysql|Elasticsearch
+Java相关 |Mysql|Elasticsearch
 :---:|:---:|:-----------:
 [☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)
 
