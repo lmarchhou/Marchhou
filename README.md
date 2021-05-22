@@ -1,9 +1,22 @@
 
+----
+## 目录
+1. [目录1](#jump1)
+2. [目录2](#jump2)
+
+---
+### <span id="jump1">1. 目录1</span>
+---
+### <span id="jump2">2. 目录2</span>
+
+
+
 **我的分类:**
  
 JAVA |Mysql|Elasticsearch|
 :---:|:---:|:-----------:|
-☕|💾|🎨|💡| 
+[java](#java)|💾|🎨|💡| 
+
 
 ## ☕Java相关
 ### 1.Java 8 Features
@@ -20,4 +33,11 @@ JAVA |Mysql|Elasticsearch|
 ## 💾Mysql
 
 ## 🎨ElasticSearch
+
+
+
+
+
+
+### <span id="java">java</span>
 
