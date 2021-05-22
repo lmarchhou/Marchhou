@@ -19,6 +19,6 @@ JAVA |Mysql|Elasticsearch|JavaScript
 
 ## 💾Mysql
 
-## 🎨Elasticsearch
+## 🎨ElasticSearch
 
 ## 💡JavaScript
