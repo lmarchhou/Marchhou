@@ -1,8 +1,8 @@
 
 **我的分类:**
  
-JAVA |Mysql|Elasticsearch|JavaScript
-:---:|:---:|:-----------:|:--------:
+JAVA |Mysql|Elasticsearch|
+:---:|:---:|:-----------:|
 ☕|💾|🎨|💡| 
 
 ## ☕Java相关
@@ -21,4 +21,3 @@ JAVA |Mysql|Elasticsearch|JavaScript
 
 ## 🎨ElasticSearch
 
-## 💡JavaScript
