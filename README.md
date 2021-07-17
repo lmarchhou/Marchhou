@@ -43,6 +43,35 @@ public class AsyncConfiguration {
         return executor;
     }
 }
+
+@Override
+public void saveDeviceStatus() {
+    DeviceIdIplist deviceIdIplist = getDeviceIdIplist();
+    for (DeviceIdIplist.DeviceIdIp deviceIdIp : deviceIdIplist.getDeviceIdIpsList()) {
+            deviceActionService.saveDeviceStatus(deviceIdIp);  
+    }
+}
+
+//用当前ping的状态和redis中的状态比较
+//如果不一样：写入redis，写入action表，调grpc接口
+//考虑多线程处理
+@Async("taskExecutor-monitor")
+@Override
+public void saveDeviceStatus(DeviceIdIplist.DeviceIdIp deviceIdIp) {
+    boolean flag = getPingResult(deviceIdIp);
+    int flagInt = flag ? 1 : 0;
+    String redisFlag = stringRedisTemplate.opsForValue().get(RedisConst.DEVICE_CONNECT_STATUS + deviceIdIp.getDeviceId());
+    if(!String.valueOf(flagInt).equals(redisFlag)){
+        stringRedisTemplate.opsForValue().set(RedisConst.DEVICE_CONNECT_STATUS + deviceIdIp.getDeviceId(),String.valueOf(flagInt));
+
+        DeviceConnectStatus deviceConnectStatus = DeviceConnectStatus.newBuilder()
+                .setDeviceId(deviceIdIp.getDeviceId())
+                .setStatus(flagInt)
+                .build();
+        deviceInfoStub.updateStatus(deviceConnectStatus);
+    }
+}
+
 ```
 
 ## <span id="mysql">💾Mysql</span>
