@@ -20,6 +20,30 @@ Java相关 |Mysql|Elasticsearch
 * Base64
 
 ### 2.线程池
+```.java
+@Configuration
+@EnableAsync
+@SuppressWarnings("all")
+public class AsyncConfiguration {
+    // 声明一个线程池(并指定线程池的名字)
+    @Bean("taskExecutor-monitor")
+    public Executor asyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        //核心线程数：线程池创建时候初始化的线程数
+        executor.setCorePoolSize(8);
+        //最大线程数：线程池最大的线程数。当核心线程都在忙，且缓冲队列都满了，才会申请超过核心线程数的线程
+        executor.setMaxPoolSize(8);
+        //缓冲队列：用来缓冲执行任务的队列。当核心线程都在忙，再来新的任务，会将任务放到缓冲队列
+        executor.setQueueCapacity(5000);
+        //允许线程的空闲时间60秒：当超过了核心线程出之外的线程在空闲时间到达之后会被销毁
+        executor.setKeepAliveSeconds(60);
+        //线程池名的前缀：设置好了之后可以方便我们定位处理任务所在的线程池
+        executor.setThreadNamePrefix("equipment-monitor-task-");
+        executor.initialize();
+        return executor;
+    }
+}
+```
 
 ## <span id="mysql">💾Mysql</span>
 
