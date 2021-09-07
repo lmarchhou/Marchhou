@@ -83,6 +83,31 @@ public void saveDeviceStatus(DeviceIdIplist.DeviceIdIp deviceIdIp) {
 
 ```
 
+### 3.java8的Function函数写模版模式
+```.java
+package com.uih.uplus.solar.log.parser.service;
+
+import java.util.function.Function;
+
+/**
+ * @Description:
+ * @Date: 2021/9/7 11:10
+ */
+public class FunctionTest {
+
+        public static void  main(String[] args){
+            System.out.println(compute(1,x-> (float) (2 * x)));
+            System.out.println(compute(1,x-> (float) (2 * x + 3)));
+        }
+
+        private static Float compute(int num, Function<Integer, Float> function){
+            Float result = function.apply(num);
+            return result;
+        }
+
+}
+```
+
 ## <span id="mysql">💾Mysql</span>
 
 ## <span id="elasticSearch">🎨ElasticSearch</span>
