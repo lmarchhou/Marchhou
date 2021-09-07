@@ -114,6 +114,15 @@ public class FunctionTest {
 ```
 链接：https://www.cnblogs.com/SIHAIloveYAN/p/11288064.html
 
+### 4，同一个类中，一个方法调用另外一个有注解（比如@Async，@Transational）的方法，注解失效的原因和解决方法
+#### 4.1原因
+spring 在扫描bean的时候会扫描方法上是否包含@Transactional注解，如果包含，spring会为这个bean动态地生成一个子类（即代理类，proxy），代理类是继承原来那个bean的。
+此时，当这个有注解的方法被调用的时候，实际上是由代理类来调用的，代理类在调用之前就会启动transaction。
+然而，如果这个有注解的方法是被同一个类中的其他方法调用的，那么该方法的调用并没有通过代理类，而是直接通过原来的那个bean，所以就不会启动transaction，我们看到的现象就是@Transactional注解无效。
+#### 4.2解决方法
+* 把这两个方法分开到不同的类中；
+* 把注解加到类名上面；
+
 ## <span id="mysql">💾Mysql</span>
 
 ## <span id="elasticSearch">🎨ElasticSearch</span>
