@@ -84,6 +84,11 @@ public void saveDeviceStatus(DeviceIdIplist.DeviceIdIp deviceIdIp) {
 ```
 
 ### 3.java8的Function函数写模版模式
+Java 8在java.util.function下面增加增加一系列的函数接口。其中主要有Consumer、Supplier、Predicate、Function等。
+
+这几个接口都在 java.util.function 包下的，分别是Consumer/ThrowingConsumer（消费型）、supplier（供给型）、predicate（谓词型）、function（功能性）
+
+
 ```.java
 package com.uih.uplus.solar.log.parser.service;
 
