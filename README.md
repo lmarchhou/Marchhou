@@ -140,7 +140,7 @@ PUT _all/_settings {
 }
 ```
 
-## <span id="Kafka">🎨Kafka</span>
+## <span id="Kafka">💡Kafka</span>
 
 Kafka是一个分布式流数据系统，使用Zookeeper进行集群的管理。与其他消息系统类似，整个系统由生产者、Broker Server和消费者三部分组成，生产者和消费者由开发人员编写，通过API连接到Broker Server进行数据操作。我们重点关注三个概念：
 
