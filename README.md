@@ -6,7 +6,7 @@
  
 Java相关 |Mysql|Elasticsearch|Kafka
 :---:|:---:|:-----------:|:-----------:|
-[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[🎨](#Kafka)
+[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)
 
 
 ## <span id="java">☕Java相关</span>
