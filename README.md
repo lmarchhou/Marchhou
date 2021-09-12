@@ -4,9 +4,9 @@
  
  Markdown 基本语法：https://www.cnblogs.com/real-l/p/9375476.html
  
-Java相关 |Mysql|Elasticsearch|Kafka
-:---:|:---:|:-----------:|:-----------:|
-[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)
+Java相关 |Mysql|Elasticsearch|Kafka|dotNetCore
+:---:|:---:|:-----------:|:-----------:|:-----------:|
+[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)|[💡](#dotNetCore)
 
 
 ## <span id="java">☕Java相关</span>
@@ -154,3 +154,5 @@ Kafka是一个分布式流数据系统，使用Zookeeper进行集群的管理。
 链接：https://blog.csdn.net/cao1315020626/article/details/112590786?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522163110137116780262550619%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=163110137116780262550619&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-112590786.first_rank_v2_pc_rank_v29&utm_term=Kafka&spm=1018.2226.3001.4187
 
 Kafka Tools:https://www.kafkatool.com/download.html
+
+## <span id="dotNetCore">💡dotNetCore</span>
