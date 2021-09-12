@@ -156,3 +156,5 @@ Kafka是一个分布式流数据系统，使用Zookeeper进行集群的管理。
 Kafka Tools:https://www.kafkatool.com/download.html
 
 ## <span id="dotNetCore">💡dotNetCore</span>
+
+https://www.cnblogs.com/Fengyinyong/category/1854797.html
