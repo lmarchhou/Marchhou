@@ -161,3 +161,7 @@ https://www.cnblogs.com/Fengyinyong/category/1854797.html
 
 ### 1.Websocket&Http
 WebSocket是一种在单个TCP连接上进行全双工通信的协议.
+
+HTTP 协议有一个缺陷：通信只能由客户端发起，做不到服务器主动向客户端推送信息。
+
+WebSocket 协议 它的最大特点就是，服务器可以主动向客户端推送信息，客户端也可以主动向服务器发送信息，是真正的双向平等对话，属于服务器推送技术的一种
