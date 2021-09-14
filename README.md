@@ -158,3 +158,6 @@ Kafka Tools:https://www.kafkatool.com/download.html
 ## <span id="dotNetCore">💡dotNetCore</span>
 
 https://www.cnblogs.com/Fengyinyong/category/1854797.html
+
+### 1.Websocket&Http
+WebSocket是一种在单个TCP连接上进行全双工通信的协议.
