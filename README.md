@@ -125,6 +125,10 @@ spring 在扫描bean的时候会扫描方法上是否包含@Transactional注解�
 * 把这两个方法分开到不同的类中；
 * 把注解加到类名上面；
 
+### 5，Dubbo
+https://www.cnblogs.com/wangshouchang/p/9800659.html
+
+
 ## <span id="mysql">💾Mysql</span>
 
 ## <span id="elasticSearch">🎨ElasticSearch</span>
