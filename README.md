@@ -155,6 +155,14 @@ Kafka是一个分布式流数据系统，使用Zookeeper进行集群的管理。
 
 Kafka Tools:https://www.kafkatool.com/download.html
 
+Kafka Tools 配置
+[图片]![image](https://user-images.githubusercontent.com/39423273/133402987-818da82d-b12a-45cd-b48b-05d4ed5ceea3.png)
+[图片]![image](https://user-images.githubusercontent.com/39423273/133403007-b0b36e99-c715-40d4-97bb-f163c6cac173.png)
+[图片]![image](https://user-images.githubusercontent.com/39423273/133403030-8548504f-3787-4480-990b-96692600094b.png)
+[图片]![image](https://user-images.githubusercontent.com/39423273/133403063-bfe5460e-935a-4c83-ba4a-ccdffa7c7e0a.png)
+
+org.apache.kafka.common.security.plain.PlainLoginModule required username="consumer" password="cons-2019";
+
 ## <span id="dotNetCore">💡dotNetCore</span>
 
 https://www.cnblogs.com/Fengyinyong/category/1854797.html
