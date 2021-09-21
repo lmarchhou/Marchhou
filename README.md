@@ -129,6 +129,8 @@ spring 在扫描bean的时候会扫描方法上是否包含@Transactional注解�
 
 Git：https://github.com/apache/dubbo
 
+Dubbo Admin 运维指南：https://dubbo.incubator.apache.org/zh/docs/v2.7/admin/ops/
+
 https://www.cnblogs.com/wangshouchang/p/9800659.html
 
 
