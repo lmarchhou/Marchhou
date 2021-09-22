@@ -133,6 +133,10 @@ Dubbo Admin 运维指南：https://dubbo.incubator.apache.org/zh/docs/v2.7/admin
 
 https://www.cnblogs.com/wangshouchang/p/9800659.html
 
+### 6， BIO，NIO，AIO 
+
+https://blog.csdn.net/m0_38109046/article/details/89449305
+
 
 ## <span id="mysql">💾Mysql</span>
 
