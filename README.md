@@ -138,7 +138,10 @@ https://www.cnblogs.com/wangshouchang/p/9800659.html
 https://blog.csdn.net/m0_38109046/article/details/89449305
 
 
-### 7，mybatis缓存机制
+
+
+## <span id="mysql">💾Mysql</span>
+### 1，mybatis缓存机制
 
 mybatis提供了缓存机制减轻数据库压力，提高数据库性能
 
@@ -149,8 +152,6 @@ mybatis的缓存分为两级：一级缓存、二级缓存
 二级缓存是mapper级别的缓存，同一个namespace公用这一个缓存，所以对SqlSession是共享的
 
 ![image](https://user-images.githubusercontent.com/39423273/134338447-de5de8e5-f0b0-47f4-b0f2-1dfe9ad9e5dd.png)
-
-## <span id="mysql">💾Mysql</span>
 
 ## <span id="elasticSearch">🎨ElasticSearch</span>
 ### 问题一
