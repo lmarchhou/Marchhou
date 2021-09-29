@@ -152,6 +152,8 @@ https://blog.csdn.net/m0_38109046/article/details/89449305
 * 线程安全：Hashtable 是线程安全的，而 HashMap 是非线程安全的
 * 推荐使用：在 Hashtable 的类注释可以看到，Hashtable 是保留类不建议使用，推荐在单线程环境下使用 HashMap 替代，如果需要多线程使用则用 ConcurrentHashMap 替代。
 
+### 9， 自定义注解
+https://blog.csdn.net/byteArr/article/details/103992016?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-4.no_search_link&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-4.no_search_link
 
 ## <span id="mysql">💾Mysql</span>
 ### 1，mybatis缓存机制
