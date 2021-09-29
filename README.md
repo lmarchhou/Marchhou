@@ -147,6 +147,11 @@ https://blog.csdn.net/m0_38109046/article/details/89449305
 * 字节流通常用于处理二进制数据，不支持直接读写字符；字符流通常用于处理文本数据
 * 在读写文件需要对文本内容进行处理：按行处理、比较特定字符的时候一般会选择字符流；而仅仅读写文件，不处理内容，一般选择字节流
 
+### 8， HashMap和Hashtable有什么区别？
+* 存储：HashMap 允许 key 和 value 为 null，而 Hashtable 不允许
+* 线程安全：Hashtable 是线程安全的，而 HashMap 是非线程安全的
+* 推荐使用：在 Hashtable 的类注释可以看到，Hashtable 是保留类不建议使用，推荐在单线程环境下使用 HashMap 替代，如果需要多线程使用则用 ConcurrentHashMap 替代。
+
 
 ## <span id="mysql">💾Mysql</span>
 ### 1，mybatis缓存机制
