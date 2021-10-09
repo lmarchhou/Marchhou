@@ -174,10 +174,10 @@ MySQL 的事务隔离是在 my.ini 配置文件里添加的，在文件的最后
 transaction-isolation = REPEATABLE-READ
 ```
 可用的配置值：READ-UNCOMMITTED、READ-COMMITTED、REPEATABLE-READ、SERIALIZABLE。
-* READ-UNCOMMITTED：未提交读，最低隔离级别、事务未提交前，就可被其他事务读取（会出现幻读、脏读、不可重复读）。
-* READ-COMMITTED：提交读，一个事务提交后才能被其他事务读取到（会造成幻读、不可重复读）。
-* REPEATABLE-READ：可重复读（默认级别），保证多次读取同一个数据时，其值都和事务开始时候的内容是一致，禁止读取到别的事务未提交的数据（会造成幻读）。
-* SERIALIZABLE：序列化，代价最高最可靠的隔离级别，该隔离级别能防止脏读、不可重复读、幻读。
+* **READ-UNCOMMITTED**：未提交读，最低隔离级别、事务未提交前，就可被其他事务读取（会出现幻读、脏读、不可重复读）。
+* **READ-COMMITTED**：提交读，一个事务提交后才能被其他事务读取到（会造成幻读、不可重复读）。
+* **REPEATABLE-READ**：可重复读（默认级别），保证多次读取同一个数据时，其值都和事务开始时候的内容是一致，禁止读取到别的事务未提交的数据（会造成幻读）。
+* **SERIALIZABLE**：序列化，代价最高最可靠的隔离级别，该隔离级别能防止脏读、不可重复读、幻读。
 
 
 ## <span id="elasticSearch">🎨ElasticSearch</span>
