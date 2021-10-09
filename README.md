@@ -171,12 +171,12 @@ mybatis的缓存分为两级：一级缓存、二级缓存
 ### 2，Mysql数据库的事务隔离
 MySQL 的事务隔离是在 my.ini 配置文件里添加的，在文件的最后添加：
 ```xml
-transaction-isolation = REPEATABLE-READ
+transaction isolation = REPEATABLE READ
 ```
-可用的配置值：READ-UNCOMMITTED、READ-COMMITTED、REPEATABLE-READ、SERIALIZABLE。
-* **READ-UNCOMMITTED**：未提交读，最低隔离级别、事务未提交前，就可被其他事务读取（会出现幻读、脏读、不可重复读）。
-* **READ-COMMITTED**：提交读，一个事务提交后才能被其他事务读取到（会造成幻读、不可重复读）。
-* **REPEATABLE-READ**：可重复读（默认级别），保证多次读取同一个数据时，其值都和事务开始时候的内容是一致，禁止读取到别的事务未提交的数据（会造成幻读）。
+可用的配置值：READ UNCOMMITTED、READ COMMITTED、REPEATABLE READ、SERIALIZABLE。
+* **READ UNCOMMITTED**：未提交读，最低隔离级别、事务未提交前，就可被其他事务读取（会出现幻读、脏读、不可重复读）。
+* **READ COMMITTED**：提交读，一个事务提交后才能被其他事务读取到（会造成幻读、不可重复读）。
+* **REPEATABLE READ**：可重复读（默认级别），保证多次读取同一个数据时，其值都和事务开始时候的内容是一致，禁止读取到别的事务未提交的数据（会造成幻读）。
 * **SERIALIZABLE**：序列化，代价最高最可靠的隔离级别，该隔离级别能防止脏读、不可重复读、幻读。
 
 名词解释：
@@ -186,21 +186,21 @@ transaction-isolation = REPEATABLE-READ
 
 查看和设置隔离级别：
 
-1.连接mysql数据库\
+1.连接mysql数据库
 ```xml
-mysql -uroot -p\
+mysql -uroot -p
 ```
 ![image](https://user-images.githubusercontent.com/39423273/136648836-b1d17b44-2843-43bc-b029-aadd57c3a3c1.png)
 
-2.查看系统当前隔离级别\
+2.查看系统当前隔离级别
 ```xml
-SELECT @@global.tx_isolation\
+SELECT @@global.tx_isolation
 ```
 ![image](https://user-images.githubusercontent.com/39423273/136648930-0b382054-c2a2-424c-bf8c-3b2c971a1137.png)
 
-3.设置系统当前隔离级别\
+3.设置系统当前隔离级别
 ```xml
-SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;
+SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED
 ```
 ![image](https://user-images.githubusercontent.com/39423273/136649011-49ef13ab-3a30-48f6-9f0d-cb47f48dd24c.png)
 
