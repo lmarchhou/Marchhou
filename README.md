@@ -185,12 +185,14 @@ transaction-isolation = REPEATABLE-READ
 * **幻读**：指同一个事务内多次查询返回的结果集不一样。比如同一个事务 A 第一次查询时候有 n 条记录，但是第二次同等条件下查询却有 n+1 条记录，这就好像产生了幻觉。发生幻读的原因也是另外一个事务新增或者删除或者修改了第一个事务结果集里面的数据，同一个记录的数据内容被修改了，所有数据行的记录就变多或者变少了。
 
 查看和设置隔离级别：
+
 1.连接mysql数据库
 mysql -uroot -p
 ![image](https://user-images.githubusercontent.com/39423273/136648836-b1d17b44-2843-43bc-b029-aadd57c3a3c1.png)
 
 2.查看系统当前隔离级别
 SELECT @@global.tx_isolation
+
 ![image](https://user-images.githubusercontent.com/39423273/136648930-0b382054-c2a2-424c-bf8c-3b2c971a1137.png)
 
 3.设置系统当前隔离级别
