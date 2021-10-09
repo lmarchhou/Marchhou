@@ -186,16 +186,22 @@ transaction-isolation = REPEATABLE-READ
 
 查看和设置隔离级别：
 
-1.连接mysql数据库
-mysql -uroot -p
+1.连接mysql数据库\
+```xml
+mysql -uroot -p\
+```
 ![image](https://user-images.githubusercontent.com/39423273/136648836-b1d17b44-2843-43bc-b029-aadd57c3a3c1.png)
 
-2.查看系统当前隔离级别
-SELECT @@global.tx_isolation
-
+2.查看系统当前隔离级别\
+```xml
+SELECT @@global.tx_isolation\
+```
 ![image](https://user-images.githubusercontent.com/39423273/136648930-0b382054-c2a2-424c-bf8c-3b2c971a1137.png)
 
-3.设置系统当前隔离级别
+3.设置系统当前隔离级别\
+```xml
+SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;
+```
 ![image](https://user-images.githubusercontent.com/39423273/136649011-49ef13ab-3a30-48f6-9f0d-cb47f48dd24c.png)
 
 ## <span id="elasticSearch">🎨ElasticSearch</span>
