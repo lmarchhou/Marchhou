@@ -204,9 +204,10 @@ SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED
 ```
 ![image](https://user-images.githubusercontent.com/39423273/136649011-49ef13ab-3a30-48f6-9f0d-cb47f48dd24c.png)
 
-### mysql问题排查方法
+### 3，mysql问题排查方法
 1.使用 show (full) processlist 命令查看当前所有连接信息
 ![image](https://user-images.githubusercontent.com/39423273/136741463-9324b395-745d-4de8-8bc4-01d428ebf2d9.png)
+
 2.使用 explain 命令查看SQL语句执行情况
 执行sql语句：
 ```sql
