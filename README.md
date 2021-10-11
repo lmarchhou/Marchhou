@@ -214,6 +214,7 @@ explain select * from device where device.CUSTOMER_ID = 1376444245691330576
 ```
 explain查看结果
 ![image](https://user-images.githubusercontent.com/39423273/136741591-02e93eba-4d50-48a0-a58b-3ad97b388c61.png)
+explain分析查询：https://www.cnblogs.com/deverz/p/11066043.html
 
 3.开启慢查询日志，查看慢查询的 SQL
 * 打开慢查询日志的命令
