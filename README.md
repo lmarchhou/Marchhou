@@ -204,6 +204,35 @@ SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED
 ```
 ![image](https://user-images.githubusercontent.com/39423273/136649011-49ef13ab-3a30-48f6-9f0d-cb47f48dd24c.png)
 
+### mysql问题排查方法
+1.使用 show (full) processlist 命令查看当前所有连接信息
+![image](https://user-images.githubusercontent.com/39423273/136741463-9324b395-745d-4de8-8bc4-01d428ebf2d9.png)
+2.使用 explain 命令查看SQL语句执行情况
+执行sql语句：
+```sql
+explain select * from device where device.CUSTOMER_ID = 1376444245691330576
+```
+explain查看结果
+![image](https://user-images.githubusercontent.com/39423273/136741591-02e93eba-4d50-48a0-a58b-3ad97b388c61.png)
+
+3.开启慢查询日志，查看慢查询的 SQL
+* 打开慢查询日志的命令
+```xml
+set global slow_query_log=on;
+```
+![image](https://user-images.githubusercontent.com/39423273/136743054-c293c6eb-8e4e-425c-927e-9b15f4fdebdc.png)
+* 设置sql语句执行两秒钟以上就写到慢查询日志中：
+```xml
+set global long_query_time=2;
+```
+设置完后要重新连接客户端才能看到设置后的long_query_time的值
+* 查看设置
+```xml
+show variables like '%query%';
+```
+![image](https://user-images.githubusercontent.com/39423273/136743466-42e00b09-ffde-4cc6-b861-1c875a30c350.png)
+
+
 ## <span id="elasticSearch">🎨ElasticSearch</span>
 ### 问题一
 问题描述：分页查询场景，当查询记录数超过 10000 条时，会报错。  
