@@ -205,10 +205,10 @@ SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED
 ![image](https://user-images.githubusercontent.com/39423273/136649011-49ef13ab-3a30-48f6-9f0d-cb47f48dd24c.png)
 
 ### 3，mysql问题排查方法
-1.使用 show (full) processlist 命令查看当前所有连接信息
+**a. 使用 show (full) processlist 命令查看当前所有连接信息**
 ![image](https://user-images.githubusercontent.com/39423273/136741463-9324b395-745d-4de8-8bc4-01d428ebf2d9.png)
 
-2.使用 explain 命令查看SQL语句执行情况
+**b. 使用 explain 命令查看SQL语句执行情况**
 执行sql语句：
 ```sql
 explain select * from device where device.CUSTOMER_ID = 1376444245691330576
@@ -217,7 +217,7 @@ explain查看结果
 ![image](https://user-images.githubusercontent.com/39423273/136741591-02e93eba-4d50-48a0-a58b-3ad97b388c61.png)
 explain分析查询：https://www.cnblogs.com/deverz/p/11066043.html
 
-3.开启慢查询日志，查看慢查询的 SQL
+**c. 开启慢查询日志，查看慢查询的SQL**
 * 打开慢查询日志的命令
 ```xml
 set global slow_query_log=on;
