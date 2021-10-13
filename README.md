@@ -387,22 +387,19 @@ public class NotifyContext {
 ```
 d.调用
 ```java
-        switch (alertPriorityEnum) {
-            case NORMAL:  //发邮件
-                alertType = AlertTypeEnum.TYPE_2.getValue();
-                emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
-                break;
-            case HIGH: //发邮件和企业微信
-                alertType = AlertTypeEnum.TYPE_3.getValue();
-                emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
-                enterpriseWechatSendStatus = notifyContext.send(NotifyContext.NotifyType.EnterpriseWechat, userAddressMap,contentForSourceOfInfo);
-                break;
-            case CRITICAL: //发邮件和企业微信和电话
-               alertType = AlertTypeEnum.TYPE_3.getValue();
-               emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
-               enterpriseWechatSendStatus = notifyContext.send(NotifyContext.NotifyType.EnterpriseWechat, userAddressMap,contentForSourceOfInfo);
-               mobilePhoneSendStatus = notifyContext.send(NotifyContext.NotifyType.MobilePhone, userAddressMap,contentForSourceOfInfo);
-               break;
-            default:
-        }
+switch (alertPriorityEnum) {
+    case NORMAL:  //发邮件             
+        emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
+        break;
+    case HIGH: //发邮件和企业微信           
+        emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
+        enterpriseWechatSendStatus = notifyContext.send(NotifyContext.NotifyType.EnterpriseWechat, userAddressMap,contentForSourceOfInfo);
+        break;
+    case CRITICAL: //发邮件和企业微信和电话             
+       emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
+       enterpriseWechatSendStatus = notifyContext.send(NotifyContext.NotifyType.EnterpriseWechat, userAddressMap,contentForSourceOfInfo);
+       mobilePhoneSendStatus = notifyContext.send(NotifyContext.NotifyType.MobilePhone, userAddressMap,contentForSourceOfInfo);
+       break;
+    default:
+}
 ```
