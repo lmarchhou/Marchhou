@@ -308,7 +308,7 @@ https://www.cnblogs.com/yaopengfei/p/9276234.html
 注意事项：如果一个系统的策略多于四个，就需要考虑使用混合模式，解决策略类膨胀的问题。
 
 #### 实现示例
-a.创建一个接口
+a.创建一个接口  
 NotifyService.java
 ```java
 public interface NotifyService {
