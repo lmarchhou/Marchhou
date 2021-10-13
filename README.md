@@ -308,3 +308,15 @@ https://www.cnblogs.com/yaopengfei/p/9276234.html
 注意事项：如果一个系统的策略多于四个，就需要考虑使用混合模式，解决策略类膨胀的问题。
 
 #### 实现示例
+a.创建一个接口
+NotifyService.java
+```java
+public interface NotifyService {
+    /**
+     * 通知方法
+     * @param userAddressMap 要通知的对象列表key: 用户名value：邮箱地址或者企业微信地址或者电话号码
+     * @param content  通知的内容
+     */
+    Integer notify(Map<String, String> userAddressMap, String content);
+}
+```
