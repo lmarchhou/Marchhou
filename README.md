@@ -387,6 +387,9 @@ public class NotifyContext {
 ```
 d.调用
 ```java
+@Autowired
+private NotifyContext notifyContext;
+
 switch (alertPriorityEnum) {
     case NORMAL:  //发邮件             
         emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
