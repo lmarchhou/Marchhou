@@ -399,10 +399,10 @@ switch (alertPriorityEnum) {
         enterpriseWechatSendStatus = notifyContext.send(NotifyContext.NotifyType.EnterpriseWechat, userAddressMap,contentForSourceOfInfo);
         break;
     case CRITICAL: //发邮件和企业微信和电话             
-       emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
-       enterpriseWechatSendStatus = notifyContext.send(NotifyContext.NotifyType.EnterpriseWechat, userAddressMap,contentForSourceOfInfo);
-       mobilePhoneSendStatus = notifyContext.send(NotifyContext.NotifyType.MobilePhone, userAddressMap,contentForSourceOfInfo);
-       break;
+        emailSendStatus = notifyContext.send(NotifyContext.NotifyType.EMAIL, userAddressMap, contentForSourceOfInfo);
+        enterpriseWechatSendStatus = notifyContext.send(NotifyContext.NotifyType.EnterpriseWechat, userAddressMap,contentForSourceOfInfo);
+        mobilePhoneSendStatus = notifyContext.send(NotifyContext.NotifyType.MobilePhone, userAddressMap,contentForSourceOfInfo);
+        break;
     default:
 }
 ```
