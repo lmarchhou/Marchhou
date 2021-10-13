@@ -355,31 +355,33 @@ public class NotifyContext {
     private Map<NotifyType, NotifyService> notifyServiceMap = new HashMap<>();
 
     @Autowired
-    private EmailServiceImpl emailService;
+    private EmailServiceImpl emailServiceImpl;
 
     @Autowired
-    private EnterpriseWechatServiceImpl enterpriseWechatService;
+    private EnterpriseWechatServiceImpl enterpriseWechatServiceImpl;
+    
+    @Autowired
+    private MobilePhoneImpl mobilePhoneImpl;
+
+   //发送方式的枚举
+    public enum NotifyType {
+        EMAIL,
+        EnterpriseWechat,
+        MobilePhone
+    }
 
     @PostConstruct
     public void register() {
-        notifyServiceMap.put(NotifyType.EMAIL, emailService);
-        notifyServiceMap.put(NotifyType.EnterpriseWechat, enterpriseWechatService);
+        notifyServiceMap.put(NotifyType.EMAIL, emailServiceImpl);
+        notifyServiceMap.put(NotifyType.EnterpriseWechat, enterpriseWechatServiceImpl);
+        notifyServiceMap.put(NotifyType.MobilePhone, mobilePhoneImpl);
     }
 
     public Integer send(NotifyType notifyType, Map<String, String> userAddressMap, String content) {
         NotifyService notifyService = notifyServiceMap.getOrDefault(notifyType, null);
-        if (Objects.isNull(notifyService)) {
-            LogUtil.logDevError("notifyType={}的通知方式不存在", notifyType);
-            return null;
-        }
 
         return notifyService.notify(userAddressMap, content);
     }
 
-    //发送方式的枚举
-    public enum NotifyType {
-        EMAIL,
-        EnterpriseWechat
-    }
 }
 ```
