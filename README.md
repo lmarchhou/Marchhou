@@ -320,3 +320,66 @@ public interface NotifyService {
     Integer notify(Map<String, String> userAddressMap, String content);
 }
 ```
+b.创建实现接口的实体类  
+(1)EmailServiceImpl.java
+```java
+public class EmailServiceImpl implements NotifyService {
+  
+    Integer notify(Map<String, String> userAddressMap, String content){
+      //实现邮件告警业务
+    };
+}
+```
+(2)EnterpriseWechatServiceImpl.java
+```java
+public class EnterpriseWechatServiceImpl implements NotifyService {
+  
+    Integer notify(Map<String, String> userAddressMap, String content){
+      //实现企业微信告警业务
+    };
+}
+```
+(3)MobilePhoneServiceImpl.java
+```java
+public class MobilePhoneServiceImpl implements NotifyService {
+  
+    Integer notify(Map<String, String> userAddressMap, String content){
+      //实现电话告警业务
+    };
+}
+```
+c.创建Context类
+NotifyContext.java
+```java
+public class NotifyContext {
+    private Map<NotifyType, NotifyService> notifyServiceMap = new HashMap<>();
+
+    @Autowired
+    private EmailServiceImpl emailService;
+
+    @Autowired
+    private EnterpriseWechatServiceImpl enterpriseWechatService;
+
+    @PostConstruct
+    public void register() {
+        notifyServiceMap.put(NotifyType.EMAIL, emailService);
+        notifyServiceMap.put(NotifyType.EnterpriseWechat, enterpriseWechatService);
+    }
+
+    public Integer send(NotifyType notifyType, Map<String, String> userAddressMap, String content) {
+        NotifyService notifyService = notifyServiceMap.getOrDefault(notifyType, null);
+        if (Objects.isNull(notifyService)) {
+            LogUtil.logDevError("notifyType={}的通知方式不存在", notifyType);
+            return null;
+        }
+
+        return notifyService.notify(userAddressMap, content);
+    }
+
+    //发送方式的枚举
+    public enum NotifyType {
+        EMAIL,
+        EnterpriseWechat
+    }
+}
+```
