@@ -30,7 +30,8 @@ Java相关 |Mysql|Elasticsearch|Kafka|dotNetCore|设计模式
 * 降低资源消耗。通过重复利用已创建的线程，降低线程创建和销毁造成的消耗。
 * 提高响应速度。当任务到达时，任务可以不需要等到线程创建就能立即执行。
 * 增加线程的可管理型。线程是稀缺资源，使用线程池可以进行统一分配，调优和监控。
-
+ 
+**Spring boot配置线程池示例**
 ```.java
 @Configuration
 @EnableAsync
