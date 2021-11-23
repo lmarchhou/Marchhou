@@ -421,6 +421,4 @@ switch (alertPriorityEnum) {
 ### 1.ES6新特性
 * **let 与 const**
 * **解构赋值**
-* **Symbol** 
-
-ES6引入了一种新的原始数据类型Symbol，表示独一无二的值，最大的用法是用来定义对象的唯一属性名。ES6 数据类型除了Number、String、Boolean、Object、null和undefined，还新增了Symbol。
+* **Symbol** ：ES6引入了一种新的原始数据类型Symbol，表示独一无二的值，最大的用法是用来定义对象的唯一属性名。ES6 数据类型除了Number、String、Boolean、Object、null和undefined，还新增了Symbol。
