@@ -4,9 +4,9 @@
  
  Markdown 基本语法：https://www.cnblogs.com/real-l/p/9375476.html
  
-Java相关 |Mysql|Elasticsearch|Kafka|dotNetCore|设计模式
-:---:|:---:|:-----------:|:-----------:|:-----------:|:-----------:|
-[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)|[🔧](#dotNetCore)|[🍉](#designPattern)
+Java相关 |Mysql|Elasticsearch|Kafka|dotNetCore|设计模式|JavaScript
+:---:|:---:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
+[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)|[🔧](#dotNetCore)|[🍉](#designPattern)|[🍉](#JavaScript)
 
 
 ## <span id="java">☕Java相关</span>
@@ -417,3 +417,4 @@ switch (alertPriorityEnum) {
     default:
 }
 ```
+## <span id="JavaScript">🍉JavaScript</span>
