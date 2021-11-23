@@ -418,3 +418,6 @@ switch (alertPriorityEnum) {
 }
 ```
 ## <span id="JavaScript">🍉JavaScript</span>
+### 1.ES6新特性
+* let 与 const
+* 解构赋值
