@@ -429,3 +429,4 @@ switch (alertPriorityEnum) {
 * **对象新方法**
 * **数组新方法**
 * **ES6函数**
+* **class类**
