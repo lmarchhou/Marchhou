@@ -432,3 +432,4 @@ switch (alertPriorityEnum) {
 * **class类**
 * **模块import/export**
 * **Generator函数(为异步编程提供解决方案)**
+* **async函数**
