@@ -431,5 +431,6 @@ switch (alertPriorityEnum) {
 * **ES6函数**
 * **class类**
 * **模块import/export**
+* **Promise对象**
 * **Generator函数(为异步编程提供解决方案)**
 * **async函数**
