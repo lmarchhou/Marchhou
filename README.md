@@ -434,3 +434,6 @@ switch (alertPriorityEnum) {
 * **Promise对象**
 * **Generator函数(为异步编程提供解决方案)**
 * **async函数**
+### 2.Vue
+
+https://cn.vuejs.org/
