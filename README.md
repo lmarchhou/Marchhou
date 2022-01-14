@@ -440,7 +440,7 @@ https://cn.vuejs.org/
 
 #### 2.1 Vue生命周期
 
-![生命周期](https://user-images.githubusercontent.com/39423273/149465589-b773bbfe-615e-48ae-b0a8-26b2a79d8b50.png)
+![image](https://user-images.githubusercontent.com/39423273/149468143-1b020329-dff0-438a-abc0-b7193310b56b.png)
 
 
 ### 3.BootCDN
