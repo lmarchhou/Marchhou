@@ -4,9 +4,9 @@
  
  Markdown 基本语法：https://www.cnblogs.com/real-l/p/9375476.html
  
-Java相关 |Mysql|Elasticsearch|Kafka|dotNetCore|设计模式|JavaScript
-:---:|:---:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
-[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)|[🔧](#dotNetCore)|[🍉](#designPattern)|[🍉](#JavaScript)
+Java相关 |Mysql|Elasticsearch|Kafka|dotNetCore|设计模式|JavaScript|Other
+:---:|:---:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
+[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)|[🔧](#dotNetCore)|[🍉](#designPattern)|[🍉](#JavaScript)|[🍉](#Other)|
 
 
 ## <span id="java">☕Java相关</span>
@@ -451,3 +451,5 @@ https://www.bootcdn.cn/
 ### 4.npmjs
 
 https://www.npmjs.com/
+
+## <span id="Other">🍉Other</span>
