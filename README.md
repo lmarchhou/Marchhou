@@ -449,6 +449,8 @@ https://cn.vuejs.org/
 
 ### 3.BootCDN
 
+BootCDN 是 Bootstrap 中文网支持并维护的前端开源项目免费 CDN 服务，致力于为 Bootstrap、jQuery、Angular、Vuejs 一样优秀的前端开源项目提供稳定、快速的免费 CDN 加速服务。BootCDN 所收录的开源项目主要同步于 cdnjs 仓库。
+
 https://www.bootcdn.cn/
 
 
