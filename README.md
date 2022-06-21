@@ -458,6 +458,8 @@ https://www.npmjs.com/
 
 ### 5.前端组件——bootstrap table
 
+https://www.bootstrap-table.com.cn/index.html
+
 ## <span id="Other">🍉Other</span>
 
 ### 1,医学影像相关
