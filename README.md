@@ -302,8 +302,37 @@ https://www.cnblogs.com/yaopengfei/p/9276234.html
 https://www.cnblogs.com/Bruce_H21/p/12307182.html
 
 ### 4.C#使用RestClient调用Web API
-
-![image](https://user-images.githubusercontent.com/39423273/176070554-177522b2-2ca3-4983-85e7-783fcd7251b3.png)
+```c#
+public JsonResult SearchInfo(SearchInfoParam searchInfoParam)
+{
+    var PACSGuardServiceIP = ConfigurationManager.AppSettings["PACSGuardServiceIP"];
+    var PACSRESTfulPort = ConfigurationManager.AppSettings["PACSRESTfulPort"];
+    var url = "http://" + PACSGuardServiceIP + ":" + PACSRESTfulPort + "/api/v1/study/Search";
+    try{
+        var client = new RestClient(url);
+        client.Timeout = -1;
+        var request = new RestRequest(Method.POST);
+        var parameters = new {
+            PageIndex = searchInfoParam.PageIndex,
+            PageSize = searchInfoParam.PageSize,
+            StartDate = searchInfoParam.StartDate,
+            EndDate =  searchInfoParam.EndDate,
+            PatientId = searchInfoParam.PatientId,
+            PatientSex = searchInfoParam.PatientSex,
+            PatientName = searchInfoParam.PatientName,
+            modality = searchInfoParam.modality,
+            AccessionNo = searchInfoParam.AccessionNo,
+            Order =  searchInfoParam.Order
+        };
+        request.AddParameter("application/json", JsonConvert.SerializeObject(parameters), ParameterType.RequestBody);
+        IRestResponse response = client.Execute(request);              
+        return Json(new { result = response.Content });
+    } catch (Exception ex) {              
+        Logger.Error("【SearchInfo】接口异常：" + ex);
+        return Json(new { result = "fail" });
+    }
+}
+```
 https://qa.1r1g.com/sf/ask/1247054581/
 
 ### 5.C#文件压缩
