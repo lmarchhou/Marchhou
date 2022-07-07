@@ -306,6 +306,9 @@ https://www.cnblogs.com/Bruce_H21/p/12307182.html
 ![image](https://user-images.githubusercontent.com/39423273/176070554-177522b2-2ca3-4983-85e7-783fcd7251b3.png)
 https://qa.1r1g.com/sf/ask/1247054581/
 
+### 5.C#文件压缩
+#### 5.1.C#文件压缩
+#### 5.2.C#文件压缩——加密
 
 ## <span id="designPattern">🍉设计模式</span>
 设计模式（Design pattern）代表了最佳的实践，通常被有经验的面向对象的软件开发人员所采用。设计模式是软件开发人员在软件开发过程中面临的一般问题的解决方案。这些解决方案是众多软件开发人员经过相当长的一段时间的试验和错误总结出来的。
