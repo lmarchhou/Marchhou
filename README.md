@@ -308,8 +308,79 @@ https://qa.1r1g.com/sf/ask/1247054581/
 
 ### 5.C#文件压缩
 #### 5.1.C#文件压缩
+ZipFile.CreateFromDirectory 方法:https://docs.microsoft.com/zh-cn/dotnet/api/system.io.compression.zipfile.createfromdirectory?view=net-6.0
 #### 5.2.C#文件压缩——加密
+```c#
+/// <summary>
+/// 获取文件夹下的所有的文件及文件夹
+/// </summary>
+/// <param name="path">当前目录</param>
+/// <param name="cutStr">要替换的物理路径</param>
+/// <param name="list">所有的文件及文件夹组成的集合</param>
+public static void GetFileInfo(string path, string cutStr, IList<string> list)
+{
+    //获取当前目录下的文件及文件夹
+    DirectoryInfo di = new DirectoryInfo(path);    
+    FileInfo[] files = di.GetFiles();
+    DirectoryInfo[] dr = di.GetDirectories("*");
 
+    if (files.Length == 0 && dr.Length == 0){
+        list.Add(di.FullName.Replace(cutStr, "") + "\\");
+        return;
+    }
+
+    //把文件添加到list中
+    foreach (FileInfo file in files){             
+        list.Add(file.FullName.Replace(cutStr, ""));
+    }
+
+    //遍历当前文件夹,如果还有下一级文件夹,则递归调用遍历下一级目录文件夹
+    foreach (DirectoryInfo d in dr){
+        GetFileInfo(d.FullName, cutStr, list);
+    }
+
+}
+        
+/// <summary>  
+/// 压缩指定文件夹生成ZIP文件  
+/// </summary>  
+/// <param name="topDirName">顶层文件夹名称</param>  
+/// <param name="zipFileName">ZIP文件</param>  
+/// <param name="password">密码</param>  
+public static void CompressFile(string topDirName, string zipFileName, string password)
+{
+    ZipOutputStream s = new ZipOutputStream(System.IO.File.Open(zipFileName, FileMode.Create));           
+    s.SetLevel(9); // 0 - means store only to 9 - means best compression  
+    if (password != null && password.Length > 0){
+        s.Password = password;
+    }
+
+    //获取文件夹下待压缩的所有的文件及子文件夹 fileNamesToZip
+    IList<string> list = new List<string>();
+    GetFileInfo(topDirName, topDirName, list);
+    string[] fileNamesToZip = list.ToArray();
+
+    foreach (string file in fileNamesToZip){
+        if (file.EndsWith("\\")){ //文件夹               
+            ZipEntry entry = new ZipEntry(file);
+            entry.DateTime = DateTime.Now;
+            s.PutNextEntry(entry);
+        } else {//文件
+            FileStream fs = File.OpenRead(topDirName + file);
+            byte[] buffer = new byte[fs.Length];
+            fs.Read(buffer, 0, buffer.Length);      
+            ZipEntry entry = new ZipEntry(file);    
+            entry.DateTime = DateTime.Now;
+            entry.Size = fs.Length;
+            fs.Close();
+            s.PutNextEntry(entry);
+            s.Write(buffer, 0, buffer.Length);
+        }
+    }
+    s.Finish();
+    s.Close();
+}
+```
 ## <span id="designPattern">🍉设计模式</span>
 设计模式（Design pattern）代表了最佳的实践，通常被有经验的面向对象的软件开发人员所采用。设计模式是软件开发人员在软件开发过程中面临的一般问题的解决方案。这些解决方案是众多软件开发人员经过相当长的一段时间的试验和错误总结出来的。
 
