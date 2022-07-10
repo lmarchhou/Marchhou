@@ -167,6 +167,22 @@ spring中，@Resource和@Autowired都是做bean的注入时使用。使用过程
 @Autowired是spring的注解，是spring2.5版本引入的，Autowired只根据type进行注入，不会去匹配name。如果涉及到type无法辨别注入对象时，那需要依赖@Qualifier或@Primary注解一起来修饰。
 
 ## <span id="mysql">💾Mysql</span>
+
+### 常用命令
+
+登录
+```xml
+mysql -uroot -p
+```
+选择数据库
+```xml
+USE dataBaseName
+```
+执行sql脚本
+```xml
+source C:\Users\Administrator\Desktop\ADD.sql
+```
+ 
 ### 1，mybatis缓存机制
 
 mybatis提供了缓存机制减轻数据库压力，提高数据库性能
