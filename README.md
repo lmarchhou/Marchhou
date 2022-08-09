@@ -260,7 +260,16 @@ set global long_query_time=2;
 show variables like '%query%';
 ```
 ![image](https://user-images.githubusercontent.com/39423273/136743466-42e00b09-ffde-4cc6-b861-1c875a30c350.png)
+### 4，查看与设置sql_mode
 
+* 查看
+```xml
+select @@global.sql_mode;
+```
+* 设置
+```xml
+set @@global.sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+```
 
 ## <span id="elasticSearch">🎨ElasticSearch</span>
 ### 问题一
