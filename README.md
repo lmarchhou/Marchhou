@@ -166,6 +166,10 @@ spring中，@Resource和@Autowired都是做bean的注入时使用。使用过程
 @Resource是Java自己的注解，@Resource有两个属性是比较重要的，分是name和type；Spring将@Resource注解的name属性解析为bean的名字，而type属性则解析为bean的类型。所以如果使用name属性，则使用byName的自动注入策略，而使用type属性时则使用byType自动注入策略。如果既不指定name也不指定type属性，这时将通过反射机制使用byName自动注入策略。
 @Autowired是spring的注解，是spring2.5版本引入的，Autowired只根据type进行注入，不会去匹配name。如果涉及到type无法辨别注入对象时，那需要依赖@Qualifier或@Primary注解一起来修饰。
 
+### 11， 垃圾回收
+* 如何识别垃圾: 引用计数法，可达性算法
+* 垃圾回收方法: 标记清除法，复制法，标记整理法，分代收集算法
+
 ## <span id="mysql">💾Mysql</span>
 
 ### 常用命令
