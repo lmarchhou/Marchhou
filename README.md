@@ -647,3 +647,7 @@ function decrypt(encryptedVal) {
 ### 1,医学影像相关
 
 https://dicom.innolitics.com/
+
+### 2,DICOM的常用Tag分类和说明
+
+https://www.cnblogs.com/stephen2014/p/4579443.html
