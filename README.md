@@ -644,7 +644,7 @@ function decrypt(encryptedVal) {
 
 ## <span id="Other">🍉Other</span>
 
-### 1,医学影像相关
+### 1,DICOM Standard Browser
 
 https://dicom.innolitics.com/
 
