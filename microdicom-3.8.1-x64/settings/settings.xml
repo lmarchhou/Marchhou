@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<settings>
+	<animation target="series" framePerSecond="15" showAllFrame="true" loop="true" reverse="false"/>
+	<annotation color="#FFFF00" handleColor="#FF0000" thickness="1" opacity="255" calibrateDataX="1" calibrateDataY="1" show="true" infoBoxVisibility="show" showInfoBoxNameOnly="false" showInfoBoxMean="true" showInfoBoxSDev="true" showInfoBoxMinMax="true" showInfoBoxMedian="true" showInfoBoxSum="true" infoBoxTextSize="10" infoBoxTextColor="#FFFFFF" units="millimeters"/>
+	<application showMaximized="false" showSplash="true" showDefaultViewerDialog="true" defaultDICOMTagsTab="patient" defaultTypeOpenDialog="all_files" defaultTypeOpenZipDialog="zip_files"/>
+	<dicomBrowser patientAppearance="name" sortBy="patientAsc" hideImageLevel="false" hideSeriesLevel="false" hideStudyLevel="false" hidePatientLevel="false"/>
+	<exportDicom target="image" imageSize="original" exportFrameToSeparateFiles="false" seperateFiles="false" exportAnnotations="false" customImageSizeX="0" customImageSizeY="0" fileNamePrefix=""/>
+	<exportImage target="image" imageFormat="jpg" exportFrame="true" createSubFolder="true" imageSize="original" exportAnnotations="true" exportOverlayType="all" jpeg_quality="75" customImageSizeX="0" customImageSizeY="0" fileNamePrefix=""/>
+	<exportVideo target="series" imageFormat="wmv" customFPS="25" exportFrame="true" noCompression="false" seperateFiles="false" videoSize="original" exportAnnotations="true" exportOverlayType="all" quality="100" fileNamePrefix="" customVideoSizeX="0" customVideoSizeY="0" useDefaultFPS="true"/>
+	<standardOverlay color="#FFFFFF" show="true" showPatientData="true" fontName="Consolas"/>
+	<print framePerPage="6" pageNumber="both" showHeader="true" showFooter="true" showAllFrame="true" showDicomTags="true" overlayType="all" showAnnotation="true" showDate="true" headerText="" footerText="www.microdicom.com" showDicomInfo="true" leftMargin="0.25" topMargin="0.25" rightMargin="0.25" bottomMargin="0.25"/>
+	<view defaultZoom="fitToScreen"/>
+	<windowlevels defaultWL="default" customCenter="0" customWidth="1">
+		<preset name="Skull" center="25" width="95"/>
+		<preset name="Lung" center="-400" width="1600"/>
+		<preset name="Abdomen" center="10" width="400"/>
+		<preset name="Mediastinum" center="10" width="450"/>
+		<preset name="Bone" center="300" width="2500"/>
+		<preset name="Spine" center="20" width="300"/>
+		<preset name="Postmyelo" center="200" width="1000"/>
+		<preset name="Felsenbein" center="500" width="4000"/>
+	</windowlevels>
+	<view defaultZoom="fitToScreen"/>
+	<copyToFolder target="image" createSubFolder="false" fileNamePrefix=""/>
+	<exportText target="image" textFormat="txt" createSubFolder="true" fileNamePrefix=""/>
+	<dicomServers>
+		<client AETitle="MICRODICOM" port="11112"/>
+		<storage deleteAfterClosingApplication="true"/>
+	</dicomServers>
+</settings>

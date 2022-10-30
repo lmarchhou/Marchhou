@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<overlay>
+	<entry group="0x0010" element="0x0010" position="topLeft" hideWhenAnonymize="true" description="DCM_PatientName"/>
+	<entry group="0x0010" element="0x0020" position="topLeft" hideWhenAnonymize="true" description="DCM_PatientID"/>
+	<entry group="0x0010" element="0x0030" position="topLeft" hideWhenAnonymize="true" description="DCM_PatientBirthDate"/>
+	<entry group="0x0010" element="0x0040" position="topLeft" hideWhenAnonymize="true" description="DCM_PatientSex" noNewLine="true"/>
+	<entry group="0x0008" element="0x1030" position="topLeft" description="DCM_StudyDescription"/>
+	<entry group="0x0008" element="0x103e" position="topLeft" description="DCM_SeriesDescription"/>
+	<entry group="0x0020" element="0x4000" position="topLeft" description="DCM_ImageComments"/>
+	<entry group="0x0032" element="0x4000" position="topLeft" description="DCM_RETIRED_StudyComments"/>
+	
+	<entry group="0x0008" element="0x0080" position="topRight" hideWhenAnonymize="true" description="DCM_InstitutionName"/>
+	<entry group="0x0008" element="0x1090" position="topRight" description="DCM_ManufacturerModelName"/>
+	<entry group="0x0008" element="0x0090" position="topRight" hideWhenAnonymize="true" description="DCM_ReferringPhysicianName"/>
+	<entry group="0x0008" element="0x0022" position="topRight" description="DCM_AcquisitionDate" group_if_missing="0x0008" element_if_missing="0x0020"/>
+	<entry group="0x0008" element="0x0032" position="topRight" description="DCM_AcquisitionTime" group_if_missing="0x0008" element_if_missing="0x0030" noNewLine="true"/>
+	
+	<entry group="0x0018" element="0x0050" position="bottomLeft" description="DCM_SliceThickness" text="ST:"/>
+	<entry group="0x0020" element="0x1041" position="bottomLeft" description="DCM_SliceLocation" text="SL:" noNewLine="true"/>
+	<entry group="0x0018" element="0x0080" position="bottomLeft" description="DCM_RepetitionTime" text="RT:"/>
+	<entry group="0x0018" element="0x0081" position="bottomLeft" description="DCM_EchoTime" text="ET:" noNewLine="true"/>
+	<entry group="0x0018" element="0x0087" position="bottomLeft" description="DCM_MagneticFieldStrength" text="FS:"/>
+	<entry viewElement="PositionerPrimaryAngle" position="bottomLeft" description="Positioner Primary Angle +LAO -RAO" text=""/>
+	<entry viewElement="PositionerSecondaryAngle" position="bottomLeft" description="Positioner Secondary Angle +Cranial -Caudal:" text="" noNewLine="true"/>
+	<entry viewElement="xrayCurrentAndKVP" position="bottomRight" description="XRay current and KVP" text=""/>
+	<entry group="0x0008" element="0x0060" position="bottomLeft" description="DCM_Modality"/>
+	<entry viewElement="compression" position="bottomLeft" description="Image compression" text=""/>
+	<entry viewElement="imageNumber" position="bottomLeft" description="Image number" text="Images:"/>
+	<entry group="0x0020" element="0x0011" position="bottomLeft" Description="DCM_SeriesNumber" text="Series:"/>
+	
+	<entry viewElement="mouseCursorPosition" position="bottomRight" description="Mouse position" text=""/>
+	<entry viewElement="zoom" position="bottomRight" description="Zoom" text="Zoom:"/>
+	<entry viewElement="windowLengthWidth" position="bottomRight" description="Window Length/Window Width" text=""/>
+</overlay>
