@@ -439,6 +439,66 @@ public static void CompressFile(string topDirName, string zipFileName, string pa
     s.Close();
 }
 ```
+### 6.string压缩->string/byte[],解压缩
+```c#
+   public void Compress()
+        {
+            
+                try
+                {
+                    string value = File.ReadAllText(hierachyStringFile);
+
+                    string data = string.Empty;
+                    byte[] byteArray = Encoding.Default.GetBytes(value);
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (GZipStream sw = new GZipStream(ms, CompressionMode.Compress))
+                        {
+                            sw.Write(byteArray, 0, byteArray.Length);
+                        }
+                        data = Convert.ToBase64String(ms.ToArray());
+                    }
+                    //return data;
+                }
+                catch (Exception ex)
+                {
+                    //return ex.Message;
+                }
+        }
+
+        public void Decompress()
+        {
+
+                try
+                {
+                    string value = File.ReadAllText(hierachyStringCompressFile);
+                    string data = string.Empty;
+                    byte[] bytes = Convert.FromBase64String(value);
+                    using (MemoryStream msReader = new MemoryStream())
+                    {
+                        using (MemoryStream ms = new MemoryStream(bytes))
+                        {
+                            using (GZipStream zip = new GZipStream(ms, CompressionMode.Decompress))
+                            {
+                                byte[] buffer = new byte[1024];
+                                int readLen = 0;
+                                while ((readLen = zip.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    msReader.Write(buffer, 0, readLen);
+                                }
+                            }
+                        }
+                        data = Encoding.Default.GetString(msReader.ToArray());
+                    }
+                    //return data;
+                }
+                catch (Exception ex)
+                {
+                    //return ex.Message;
+                }
+        }
+```c#
+
 ## <span id="designPattern">🍉设计模式</span>
 设计模式（Design pattern）代表了最佳的实践，通常被有经验的面向对象的软件开发人员所采用。设计模式是软件开发人员在软件开发过程中面临的一般问题的解决方案。这些解决方案是众多软件开发人员经过相当长的一段时间的试验和错误总结出来的。
 
