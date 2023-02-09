@@ -471,7 +471,7 @@ public static void CompressFile(string topDirName, string zipFileName, string pa
 
            try
            {
-               string value = File.ReadAllText(hierachyStringCompressFile);//lujing
+               string value = File.ReadAllText(hierachyStringCompressFile);//路径
                string data = string.Empty;
                byte[] bytes = Convert.FromBase64String(value);
                using (MemoryStream msReader = new MemoryStream())
