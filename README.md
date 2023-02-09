@@ -441,12 +441,12 @@ public static void CompressFile(string topDirName, string zipFileName, string pa
 ```
 ### 6.string压缩->string/byte[],解压缩
 ```c#
-   public void Compress()
+   public void Compress(string hierachyStringFile)
    {
             
          try
          {
-             string value = File.ReadAllText(hierachyStringFile);
+             string value = File.ReadAllText(hierachyStringFile);//路径
 
              string data = string.Empty;
              byte[] byteArray = Encoding.Default.GetBytes(value);
@@ -466,12 +466,12 @@ public static void CompressFile(string topDirName, string zipFileName, string pa
          }
    }
 
-   public void Decompress()
+   public void Decompress(string hierachyStringCompressFile)
    {
 
            try
            {
-               string value = File.ReadAllText(hierachyStringCompressFile);
+               string value = File.ReadAllText(hierachyStringCompressFile);//lujing
                string data = string.Empty;
                byte[] bytes = Convert.FromBase64String(value);
                using (MemoryStream msReader = new MemoryStream())
