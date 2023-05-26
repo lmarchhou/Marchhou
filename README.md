@@ -186,7 +186,11 @@ USE dataBaseName
 ```xml
 source C:\Users\Administrator\Desktop\ADD.sql
 ```
- 
+ 修改mysql密码
+ ```xml
+set password = password('Hcz@1234');
+flush privileges
+```
 ### 1，mybatis缓存机制
 
 mybatis提供了缓存机制减轻数据库压力，提高数据库性能
