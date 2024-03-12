@@ -190,6 +190,7 @@ source C:\Users\Administrator\Desktop\ADD.sql
  ```xml
 set password = password('Hcz@1234');
 flush privileges
+
 或者
 ALTER USER 'root'@'localhost' IDENTIFIED BY '123456';
 ```
