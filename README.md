@@ -724,3 +724,9 @@ https://www.cnblogs.com/stephen2014/p/4579443.html
 ### 3,[https://github.com/cornerstonejs](https://github.com/cornerstonejs)
 
 ## <span id="CommonCommand">🍉CommonCommand</span>
+
+### 1,获取文件的MD5值
+···
+certutil -hashfile {filePath} MD5
+```
+
