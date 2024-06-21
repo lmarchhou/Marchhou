@@ -4,9 +4,9 @@
  
  Markdown 基本语法：https://www.cnblogs.com/real-l/p/9375476.html
  
-Java相关 |Mysql|Elasticsearch|Kafka|dotNetCore|设计模式|JavaScript|Other
-:---:|:---:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
-[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)|[🔧](#dotNetCore)|[🍉](#designPattern)|[🍉](#JavaScript)|[🍉](#Other)|
+Java相关 |Mysql|Elasticsearch|Kafka|dotNetCore|设计模式|JavaScript|Other|CommonCommand
+:---:|:---:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|:-----------:|
+[☕](#java)|[💾](#mysql)|[🎨](#Elasticsearch)|[💡](#Kafka)|[🔧](#dotNetCore)|[🍉](#designPattern)|[🍉](#JavaScript)|[🍉](#Other)|[🍉](#CommonCommand)|
 
 
 ## <span id="java">☕Java相关</span>
@@ -722,3 +722,5 @@ https://dicom.innolitics.com/
 https://www.cnblogs.com/stephen2014/p/4579443.html
 
 ### 3,[https://github.com/cornerstonejs](https://github.com/cornerstonejs)
+
+## <span id="CommonCommand">🍉CommonCommand</span>
