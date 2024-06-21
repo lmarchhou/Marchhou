@@ -726,6 +726,6 @@ https://www.cnblogs.com/stephen2014/p/4579443.html
 ## <span id="CommonCommand">🍉CommonCommand</span>
 
 ### 1,获取文件的MD5值
-···xml
+```xml
 certutil -hashfile {filePath} MD5
 ```
