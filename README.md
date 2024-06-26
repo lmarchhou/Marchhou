@@ -726,6 +726,7 @@ https://www.cnblogs.com/stephen2014/p/4579443.html
 ## <span id="CommonCommand">🍉CommonCommand</span>
 
 ### 1,获取文件的MD5值
+#### 1.1,Windows检测方式
 ```xml
 certutil -hashfile {filePath} MD5
 ```
