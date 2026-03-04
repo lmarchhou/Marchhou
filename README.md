@@ -710,8 +710,141 @@ function decrypt(encryptedVal) {
 }
 
 ```
+
 ### 8.React
 https://zh-hans.react.dev/learn
+
+### 9.canvas显示dicom图像
+```javascript
+let pixelData = null;
+function showImageTest() {
+
+    $("#testImageData").dialog({
+        modal: false,
+        width: 550,
+        resizable: false,
+        buttons: [
+            {
+                text: ResourceManager["Dapeng_OK"],
+                click: function () {
+                     $(this).dialog('close');             
+                }
+            },
+            {
+                text: ResourceManager["Dapeng_Cancel"],
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+        ],
+        open: function () {
+            $(this).css("padding", "18px");
+            const dialog = $("#testImageData").parent();
+            const height = dialog.height();
+            const width = dialog.width();
+            dialog.addClass("dialogHeight");
+            dialog.css({
+                zIndex: 100000,
+                position: "absolute",
+                left: `calc(50% - ${width / 2}px)`,
+                top: `calc(50% - ${height / 2}px)`
+            });  
+        }
+    });
+
+    // ==========================================
+    // 1. 配置窗宽 (WW) 和 窗位 (WC)
+    // ==========================================
+    // 窗位 (Window Center): 感兴趣区域的中心灰度值。
+    // 窗宽 (Window Width): 感兴趣区域的灰度范围。
+    // 范围外的像素将被裁剪为纯黑 (0) 或纯白 (255)。
+    // 示例值: WC=450, WW=1800 常用于观察骨骼或特定软组织。
+    const windowCenter = 450;
+    const windowWidth = 1800;
+
+    // 定义图像尺寸 (需与实际 pixelData 长度匹配: 512*512 = 262144)
+    const width = 512;
+    const height = 512;
+
+    // 获取 Canvas 元素和 2D 绘图上下文
+    const canvas = document.getElementById('Canvas_testImageData');
+    const ctx = canvas.getContext('2d');
+
+    // ==========================================
+    // 2. 初始化 Canvas 画布
+    // ==========================================
+    // 设置 Canvas 的实际渲染分辨率
+    canvas.width = width;
+    canvas.height = height;
+
+    // 创建 ImageData 对象，用于存储像素数据
+    // imageData.data 是一个 Uint8ClampedArray，长度为 width * height * 4 (RGBA)
+    const imageData = ctx.createImageData(width, height);
+    const data = imageData.data;
+
+    // ==========================================
+    // 3. 预计算映射参数 (性能优化)
+    // ==========================================
+    // 计算映射范围的下限和上限
+    // 公式: Min = WC - (WW / 2), Max = WC + (WW / 2)
+    // 在此范围之外的像素值将被直接截断 (Clamping)
+    const minVal = windowCenter - (windowWidth / 2);
+    const maxVal = windowCenter + (windowWidth / 2);
+
+    // 计算斜率 (Slope)，用于将 [minVal, maxVal] 线性映射到 [0, 255]
+    // 公式: Slope = 255 / WW
+    // 防止除以零的错误处理
+    const slope = windowWidth === 0 ? 0 : (255.0 / windowWidth);
+
+    // 初始化 RGBA 数组的索引指针
+    // Canvas 中每个像素占 4 个字节 (R, G, B, A)
+    let rgbaIndex = 0;
+
+    // ==========================================
+    // 4. 遍历像素数据并执行映射 (核心逻辑)
+    // ==========================================
+    // pixelData 是 Uint16Array，包含原始的高动态范围数据 (0 - 65535)
+    for (let i = 0; i < pixelData.length; i++) {
+        const rawValue = pixelData[i]; // 读取原始 16-bit 灰度值
+        let displayValue;
+        // --- 窗宽窗位裁剪与线性映射 ---
+        if (rawValue <= minVal) {
+            // 情况 A: 像素值低于显示范围下限 -> 强制设为纯黑 (0)
+            displayValue = 0;
+        } else if (rawValue >= maxVal) {
+            // 情况 B: 像素值高于显示范围上限 -> 强制设为纯白 (255)
+            displayValue = 255;
+        } else {
+            // 情况 C: 像素值在显示范围内 -> 线性拉伸到 0-255
+            // 公式: Output = (Input - Min) * Slope
+            displayValue = (rawValue - minVal) * slope;
+        }
+
+        // 数据规范化：
+        // 1. Math.round(): 四舍五入取整，因为 Canvas 需要整数
+        // 2. Math.max/min: 双重保险，确保数值严格限制在 0-255 之间
+        let grayValue = Math.max(0, Math.min(255, Math.round(displayValue)));
+
+        // ==========================================
+        // 5. 填充 RGBA 通道
+        // ==========================================
+        // 由于是灰度图，R、G、B 通道赋予相同的值
+        data[rgbaIndex] = grayValue; // Red 通道
+        data[rgbaIndex + 1] = grayValue; // Green 通道
+        data[rgbaIndex + 2] = grayValue; // Blue 通道
+        data[rgbaIndex + 3] = 255;       // Alpha 通道 (完全不透明)
+
+        // 移动指针到下一个像素的起始位置 (每次跳过 4 个字节)
+        rgbaIndex += 4;
+    }
+
+    // ==========================================
+    // 6. 将处理好的图像数据绘制到 Canvas 上
+    // ==========================================
+    ctx.putImageData(imageData, 0, 0);
+}
+
+```
 
 ## <span id="Other">🍉Other</span>
 
