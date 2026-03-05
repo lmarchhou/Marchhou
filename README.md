@@ -841,7 +841,16 @@ function showImageTest() {
     // ==========================================
     // 6. 将处理好的图像数据绘制到 Canvas 上
     // ==========================================
+    clearCanvas(canvas);
     ctx.putImageData(imageData, 0, 0);
+
+    function clearCanvas(canvas){
+        var ctx = canvas.getContext("2d");
+        ctx.save();
+        ctx.fillStyle = "rgba(0,0,0,0)";
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+    };
 }
 
 ```
